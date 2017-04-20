@@ -241,6 +241,8 @@ int main(int argc, char *argv[])
 		std::srand(opts.seed);
 	}
 
+	std::unique_ptr<htd::LibraryInstance> htdlib(
+			htd::createManagementInstance(htd::Id::FIRST));
 	if(opts.customTreeDecomposition)
 	{
 		htd::IOrderingAlgorithm *ct = nullptr;
@@ -248,16 +250,17 @@ int main(int argc, char *argv[])
 		switch(opts.heuristic)
 		{
 		case Qbf2AspOptions::MAXIMUM_CARDINALITY_SEARCH:
-			ct = new htd::MaximumCardinalitySearchOrderingAlgorithm();
+			ct = new htd::MaximumCardinalitySearchOrderingAlgorithm(
+					htdlib.get());
 			break;
 
 		case Qbf2AspOptions::MINIMUM_FILL_EDGES:
 		default:
-			ct = new htd::MinFillOrderingAlgorithm();
+			ct = new htd::MinFillOrderingAlgorithm(htdlib.get());
 			break;
 		}
 
-		htd::OrderingAlgorithmFactory::instance().setConstructionTemplate(ct); 
+		htdlib->orderingAlgorithmFactory().setConstructionTemplate(ct);
 	}
 
 	//if(opts.customAlgorithm) qbf2asp::create::set(opts.configuration);

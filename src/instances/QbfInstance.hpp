@@ -38,6 +38,10 @@ namespace qbf2asp
 		std::unordered_map<variable_t, std::string> variableNames_;
 		std::vector<IQbfClause *> clauses_;
 
+		typedef sharp::ConstEnumerator<
+			IQbfClause, 
+			std::vector<IQbfClause *>::const_iterator> ConstEnum;
+
 	}; // class QbfInstance
 
 } // namespace qbf2asp

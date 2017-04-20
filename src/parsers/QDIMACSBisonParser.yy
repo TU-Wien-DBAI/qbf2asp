@@ -11,6 +11,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <unordered_set>
 
 #include <cstddef>
 
@@ -22,12 +23,11 @@
 	{										\
 		std::ostringstream ss;				\
 		ss << (name) << " was "	<< (expect)	\
-		   << " but " << (actual)		\
+		   << " but " << (actual)			\
 		   << " in list";					\
 		error((pos), ss.str());				\
 		YYERROR;							\
 	}
-
 %}
 
 %require "3.0"
@@ -49,11 +49,11 @@
 	IQbfClause *clause;
 }
 
-%token PROBLEM COMMENT EXISTS FORALL NEG CNF DNF ZERO EOL
-%token<string> TEXT
+%token PROBLEM EXISTS FORALL NEG CNF DNF ZERO EOL
+%token<string> COMMENT
 %token<number> WORD
 
-%destructor { delete $$; } TEXT
+%destructor { delete $$; } COMMENT
 
 %parse-param { QDIMACSLexer &lexer } { IQbfInstance &instance }
 
@@ -65,17 +65,24 @@ qdimacs	 :	comments cnf quantse clauses
 		 |  comments dnf quantsf clauses
 		 ;
 
-comments :  comments comment
+comments :  comment comments
 		 |
 		 ;
 
-comment  :  COMMENT TEXT EOL
-
-cnf      :	PROBLEM CNF WORD WORD EOL
+comment  :  COMMENT EOL
 		 ;
 
-dnf		 :	PROBLEM DNF WORD WORD EOL
+cnf      :	PROBLEM CNF varcnt clausecnt EOL
+		 ;
+
+dnf		 :	PROBLEM DNF varcnt clausecnt EOL
 	     ;
+
+varcnt   :  WORD
+		 ;
+
+clausecnt:  WORD
+		 ;
 
 quantsf  :	quantse forall
 		 |
@@ -85,29 +92,32 @@ quantse  :	quantsf exists
 		 |
 		 ;
 
-exists   :  variables ZERO EOL
+exists   :  EXISTS variables ZERO EOL
 		 ;
 
-forall   :  variables ZERO EOL
+forall   :  FORALL variables ZERO EOL
 		 ;
 
-variables:  variables variable
+variables:  variable variables
 		 |  variable
 		 ;
 
-clauses  :  clauses clause
+variable :  WORD
+		 ;
+
+clauses  :  clause clauses
 		 |  clause
 		 ;
 
 clause   :  literals ZERO EOL
 		 ;
 
-literals :  literals literal
+literals :  literal literals
 		 |  literal
 		 ;
 
-literal  :  WORD
-		 |  NEG WORD
+literal  :  variable
+		 |  NEG variable
 		 ;
 
 %%

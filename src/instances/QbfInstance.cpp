@@ -81,15 +81,14 @@ namespace qbf2asp
 
 	IQbfInstance::const_iterator QbfInstance::begin() const
 	{
-		return IQbfInstance::const_iterator(new sharp::ConstEnumerator(
+		return IQbfInstance::const_iterator(new ConstEnum(
 					clauses_.begin(),
 					clauses_.end()));
 	}
 
 	IQbfInstance::const_iterator QbfInstance::end() const
 	{
-		return IQbfInstance::const_iterator(new sharp::ConstEnumerator(
-					clauses_.end()));
+		return IQbfInstance::const_iterator(new ConstEnum(clauses_.end()));
 	}
 
 }// namespace qbf2asp

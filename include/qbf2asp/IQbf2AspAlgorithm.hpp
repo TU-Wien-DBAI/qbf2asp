@@ -10,7 +10,7 @@
 namespace qbf2asp
 {
 
-	class QBF2ASP_API IQbf2AspAlgorithm : public sharp::ITreeTupleAlgorithm
+	class QBF2ASP_API IQbf2AspAlgorithm : public sharp::ITreeAlgorithm
 	{
 	protected:
 		IQbf2AspAlgorithm &operator=(IQbf2AspAlgorithm &) { return *this; }
@@ -21,7 +21,7 @@ namespace qbf2asp
 		virtual std::vector<const htd::ILabelingFunction *>
 			preprocessOperations() const override;
 
-		virtual ITable *evaluateNode(
+		virtual sharp::ITable *evaluateNode(
 				htd::vertex_t node,
 				const htd::ITreeDecomposition &decomposition,
 				const sharp::INodeTableMap &tables,

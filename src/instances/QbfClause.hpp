@@ -32,6 +32,10 @@ namespace qbf2asp
 		std::unordered_set<variable_t> variables_;
 		std::unordered_set<variable_t> negated_;
 
+		typedef sharp::ConstEnumerator<
+			variable_t,
+			std::unordered_set<variable_t>::const_iterator> ConstEnum;
+
 	}; // class QbfClause
 
 } // namespace qbf2asp

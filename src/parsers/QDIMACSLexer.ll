@@ -20,12 +20,11 @@
 blank [ \t\r]
 eol \n
 zero 0
-textline [^{eol}]*
 
 word [1-9][0-9]*
 exists e
 forall a
-comment c
+comment c{blank}.*
 problem p
 cnf cnf
 dnf dnf
@@ -36,23 +35,16 @@ neg -
 #define YY_USER_ACTION yylloc->columns(yyleng);
 %}
 
-%x COMMENT
-
 %%
 
 %{
 yylloc->step();
 %}
 
-<COMMENT>
-{
-	{textline}  {
-					BEGIN(INITIAL);
-					yylval->string = new std::string(yytext, yyleng);
-					return token::TEXT;
-				}
-}				
-
+{comment}	{
+				yylval->string = new std::string(yytext + 2);
+				return token::COMMENT;
+			}
 
 {blank}		{ yylloc->step(); }
 
@@ -65,17 +57,13 @@ yylloc->step();
 
 {problem}	{ return token::PROBLEM; }
 
-{comment}   {
-				BEGIN(COMMENT);
-				return token::COMMENT;
-			}
-
 {cnf}		{ return token::CNF; }
 
 {dnf}		{ return token::DNF; }
 
 {word}      {
-				yylval->number = static_cast<std::size_t>(std::stoull(yytext));
+				yylval->number = static_cast<std::size_t>(
+						std::stoull(yytext));
 				return token::WORD;
 			}
 
@@ -84,12 +72,12 @@ yylloc->step();
 {forall}    { return token::FORALL; }
 
 {neg}       { return token::NEG; }
-			
+				
 %%
 
 namespace qbf2asp
 {
-	QDIMACSLexer::QDIMACSLexer(FLEX_STD istream *in, FLEX_STD ostream *out)
+	QDIMACSLexer::QDIMACSLexer(std::istream *in, std::ostream *out)
 		: QDIMACSFlexLexer(in, out)
 	{ }
 

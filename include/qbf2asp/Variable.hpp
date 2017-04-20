@@ -1,13 +1,13 @@
 #ifndef QBF2ASP_QBF2ASP_VARIABLE_H_
 #define QBF2ASP_QBF2ASP_VARIABLE_H_
 
-#include <asp2qbf/global>
+#include <qbf2asp/global>
 
 #include <htd/main.hpp>
 
 #include <vector>
 
-namespace asp2qbf
+namespace qbf2asp
 {
 	typedef htd::vertex_t variable_t;
 	typedef std::vector<variable_t> variable_vector;
@@ -19,6 +19,6 @@ namespace asp2qbf
 	};
 
 
-} // namespace asp2qbf
+} // namespace qbf2asp
 
 #endif // QBF2ASP_QBF2ASP_VARIABLE_H_

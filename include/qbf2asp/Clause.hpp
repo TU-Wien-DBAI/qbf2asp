@@ -1,13 +1,13 @@
 #ifndef QBF2ASP_QBF2ASP_CLAUSE_H_
 #define QBF2ASP_QBF2ASP_CLAUSE_H_
 
-#include <asp2qbf/global>
+#include <qbf2asp/global>
 
 #include <htd/main.hpp>
 
 #include <vector>
 
-namespace asp2qbf
+namespace qbf2asp
 {
 	typedef htd::vertex_t clause_t;
 	typedef std::vector<clause_t> clause_vector;
@@ -18,6 +18,6 @@ namespace asp2qbf
 		Clause();
 	};
 
-} // namespace asp2qbf
+} // namespace qbf2asp
 
 #endif // QBF2ASP_QBF2ASP_CLAUSE_H_

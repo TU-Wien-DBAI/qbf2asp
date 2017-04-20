@@ -6,7 +6,7 @@
 
 extern "C"
 {
-	qbf2asp_API const char *qbf2asp_version()
+	QBF2ASP_API const char *qbf2asp_version()
 	{
 		return VERSION;
 	}

@@ -31,7 +31,7 @@ namespace qbf2asp
 	class QBF2ASP_LOCAL QDIMACSLexer : public QDIMACSFlexLexer
 	{
 	public:
-		QDIMACSLexer(FLEX_STD istream *in = NULL, FLEX_STD ostream *out = NULL);
+		QDIMACSLexer(std::istream *in = nullptr, std::ostream *out = nullptr);
 		virtual ~QDIMACSLexer();
 
 		virtual token_type lex(semantic_type *yylval, location_type *yylloc);

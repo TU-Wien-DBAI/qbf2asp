@@ -36,7 +36,7 @@ namespace qbf2asp
 		return negated_.find(variable) != negated_.end();
 	}
 
-	QbfClause::SatisfiabilityInfo QbfClause::checkSatisfaction(
+	bool QbfClause::checkSatisfaction(
 			const variable_vector &trueVariables,
 			const variable_vector &falseVariables) const
 	{
@@ -53,14 +53,14 @@ namespace qbf2asp
 
 	IQbfClause::const_iterator QbfClause::begin() const
 	{
-		return IQbfClause::const_iterator(new sharp::ConstEnumerator(
+		return IQbfClause::const_iterator(new ConstEnum(
 					variables_.begin(),
 					variables_.end()));
 	}
 
 	IQbfClause::const_iterator QbfClause::end() const
 	{
-		return IQbfClause::const_iterator(new sharp::ConstEnumerator(
+		return IQbfClause::const_iterator(new ConstEnum(
 					variables_.end()));
 	}
 
