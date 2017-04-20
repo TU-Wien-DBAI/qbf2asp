@@ -1,0 +1,32 @@
+#ifndef QBF2ASP_QBF2ASP_GLOBAL_H_
+#define QBF2ASP_QBF2ASP_GLOBAL_H_
+
+// Generic helper definitions for shared library support
+#if defined _WIN32 || defined __CYGWIN__
+  #define QBF2ASP_HELPER_IMPORT __declspec(dllimport)
+  #define QBF2ASP_HELPER_EXPORT __declspec(dllexport)
+  #define QBF2ASP_HELPER_LOCAL
+#else
+  #if __GNUC__ >= 4
+    #define QBF2ASP_HELPER_IMPORT __attribute__ ((visibility ("default")))
+    #define QBF2ASP_HELPER_EXPORT __attribute__ ((visibility ("default")))
+    #define QBF2ASP_HELPER_LOCAL  __attribute__ ((visibility ("hidden")))
+  #else
+    #define QBF2ASP_HELPER_IMPORT
+    #define QBF2ASP_HELPER_EXPORT
+    #define QBF2ASP_HELPER_LOCAL
+  #endif
+#endif
+
+// Now we use the generic helper definitions above to define QBF2ASP_API.
+// QBF2ASP_API is used for the public API symbols. It either imports or exports
+// (or does nothing for a static build)
+#ifdef QBF2ASP_EXPORTS // defined when building (i.e. not using) libdynasp
+  #define QBF2ASP_API QBF2ASP_HELPER_EXPORT
+#else
+  #define QBF2ASP_API QBF2ASP_HELPER_IMPORT
+#endif // QBF2ASP_EXPORTS
+#define QBF2ASP_LOCAL QBF2ASP_HELPER_LOCAL
+
+#endif // QBF2ASP_QBF2ASP_GLOBAL_H_
+
