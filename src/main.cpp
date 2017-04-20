@@ -33,10 +33,15 @@ namespace
 			MAXIMUM_CARDINALITY_SEARCH
 		};
 
+		enum Algorithm
+		{
+			DATALOG_VIA_DECOMPOSITION = 0
+		};
+
 		Qbf2AspOptions(int argc, char *argv[])
 		{
 			int opt;
-			while((opt = getopt(argc, argv, "vhbds:c:t:")) != -1)
+			while((opt = getopt(argc, argv, "vhbds:a:t:")) != -1)
 				switch(opt)
 				{
 				case 'v':
@@ -72,37 +77,12 @@ namespace
 					this->seed = (unsigned)strtol(optarg, NULL, 10);
 					break;
 
-				case 'c':
-					this->customConfiguration = true;
+				case 'a':
+					this->customAlgorithm = true;
 					switch(strtol(optarg, NULL, 10))
 					{
 					case 1:
-						this->configuration = qbf2asp::create::PRIMAL_FULLTUPLE;
-						break;
-
-					case 2:
-						this->configuration =
-							qbf2asp::create::PRIMAL_SIMPLETUPLE;
-						break;
-
-					case 3:
-						this->configuration =
-							qbf2asp::create::PRIMAL_INVERSESIMPLETUPLE;
-						break;
-
-					case 4:
-						this->configuration =
-							qbf2asp::create::INCIDENCE_FULLTUPLE;
-						break;
-
-					case 5:
-						this->configuration =
-							qbf2asp::create::INCIDENCEPRIMAL_FULLTUPLE;
-						break;
-
-					case 6:
-						this->configuration =
-							qbf2asp::create::INCIDENCEPRIMAL_RULESETTUPLE;
+						this->algorithm = DATALOG_VIA_DECOMPOSITION;
 						break;
 
 					default:
@@ -136,9 +116,8 @@ namespace
 		unsigned seed = 0;
 		bool readFromFile = false;
 		char *fileToRead = nullptr;
-		bool customConfiguration = false; // -c <config>, --config=<config>
-		qbf2asp::create::ConfigurationType configuration
-			= qbf2asp::create::INCIDENCE_FULLTUPLE;
+		bool customAlgorithm = false; // -c <config>, --config=<config>
+		Algorithm algorithm = DATALOG_VIA_DECOMPOSITION;
 	};
 
 	void
@@ -147,7 +126,7 @@ namespace
 		std::cout
 			<< "Usage: " << programName << " [OPTION]... [FILE]"
 				<< std::endl
-			<< "Evaluate answer set programs via tree decompositions."
+			<< "Rewrite QBF formulas to answer set programs."
 				<< std::endl
 			<< std::endl
 			<< "Arguments to options are always mandatory. Valid options:"
@@ -165,16 +144,9 @@ namespace
 				<< std::endl
 			<< "  -s NUM  set NUM as seed for the random number generator"
 				<< std::endl
-			<< "  -c NUM  set algorithm configuration to NUM:" << std::endl
-			<< "\t    1: primal graph, full certificates" << std::endl
-			<< "\t    2: primal graph, optimized certificates" << std::endl
-			<< "\t    3: primal graph, inverse certificates" << std::endl
-			<< "\t    4: incidence graph, full certificates (default)"
+			<< "  -a NUM  set algorithm to NUM:" << std::endl
+			<< "\t    1: rewrite to Datalog via decomposition (default)"
 				<< std::endl
-			<< "\t    5: incidence graph/primal constraints, full certificates"
-				<< std::endl
-			<< "\t    6: incidence graph/primal constraints, optimized "
-				<< "certificates" << std::endl
 			<< std::endl
 			<< "Exit status: " << std::endl
 			<< " " << EXIT_SUCCESS << "  if OK," << std::endl
@@ -193,7 +165,7 @@ namespace
 	{
 		std::cout
 			<< PACKAGE_STRING << std::endl
-			<< "Copyright (C) 2016 Michael Morak" << std::endl
+			<< "Copyright (C) 2017 Michael Morak" << std::endl
 			<< "License GPLv3+: GNU GPL version 3 or later "
 				<< "<http://gnu.org/licenses/gpl.html>." << std::endl
 			<< "This is free software: you are free to change and "
@@ -288,7 +260,7 @@ int main(int argc, char *argv[])
 		htd::OrderingAlgorithmFactory::instance().setConstructionTemplate(ct); 
 	}
 
-	if(opts.customConfiguration) qbf2asp::create::set(opts.configuration);
+	//if(opts.customAlgorithm) qbf2asp::create::set(opts.configuration);
 
 	std::ifstream inputFileStream;
 	std::istream *inputStream = &std::cin;
@@ -308,8 +280,8 @@ int main(int argc, char *argv[])
 	}
 
 	std::cout << "Parsing..." << std::endl;
-	std::unique_ptr<qbf2asp::IParser> parser(qbf2asp::Parser::get());
-	std::unique_ptr<qbf2asp::IGroundAspInstance> instance(
+	std::unique_ptr<qbf2asp::IQDIMACSParser> parser(qbf2asp::create::parser());
+	std::unique_ptr<qbf2asp::IQbfInstance> instance(
 		parser->parse(inputStream));
 	parser.reset();
 	sharp::Benchmark::registerTimestamp("parsing time");
@@ -317,7 +289,7 @@ int main(int argc, char *argv[])
 	if(!instance.get())
 		exit(EXIT_PARSING_ERROR);
 
-	std::cout << "Initializing solver..." << std::endl;
+	/*std::cout << "Initializing solver..." << std::endl;
 	std::unique_ptr<htd::ITreeDecompositionAlgorithm> tdAlgorithm(
 			htd::TreeDecompositionAlgorithmFactory::instance()
 			.getTreeDecompositionAlgorithm());
@@ -347,6 +319,7 @@ int main(int argc, char *argv[])
 
 		std::cout << "SOLUTION COUNT: " << solution->count() << std::endl;
 	}
+	*/
 
 	if(opts.printBenchmarks)
 	{
