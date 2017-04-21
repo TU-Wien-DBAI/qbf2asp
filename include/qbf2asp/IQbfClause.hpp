@@ -9,6 +9,8 @@
 
 namespace qbf2asp
 {
+	class IQbfInstance;
+
 	class QBF2ASP_API IQbfClause
 	{
 	protected:
@@ -21,6 +23,8 @@ namespace qbf2asp
 
 		virtual void addVariable(variable_t variable) = 0;
 		virtual void addVariable(variable_t variable, bool negated) = 0;
+
+		virtual const IQbfInstance &instance() const = 0;
 		
 		virtual bool contains(variable_t variable) const = 0;
 		virtual bool isNegated(variable_t variable) const = 0;

@@ -15,7 +15,7 @@ namespace qbf2asp
 	public:
 		virtual ~IQbfClauseFactory() = 0;
 
-		virtual IQbfClause *create() const = 0;
+		virtual IQbfClause *create(const IQbfInstance &instance) const = 0;
 
 	}; // class IQbfClauseFactory
 

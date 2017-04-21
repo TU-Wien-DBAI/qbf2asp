@@ -64,12 +64,12 @@ namespace qbf2asp
 		return new QDIMACSParser();
 	}
 	
-	IQbfClause *create::clause()
+	IQbfClause *create::clause(const IQbfInstance &instance)
 	{
 		if(clauseFactory_)
-			return clauseFactory_->create();
+			return clauseFactory_->create(instance);
 		
-		return new QbfClause();
+		return new QbfClause(instance);
 	}
 
 	IQbfInstance *create::instance()

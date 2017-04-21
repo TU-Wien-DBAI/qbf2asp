@@ -28,15 +28,21 @@ namespace qbf2asp
 
 		virtual ~IQbfInstance() = 0;
 
-		virtual void addVariableName(
-				variable_t variable,
-				const std::string &name) = 0;
+		virtual void setCnf() = 0;
+		virtual void setDnf() = 0;
+		virtual void setVariableCount(std::size_t variableCount) = 0;
 
-		virtual void addVariable(variable_t variable) = 0;
-		virtual void addClause(IQbfClause *clause) = 0;
+		virtual void setQuantifierLevel(variable_t variable, short level) = 0;
+		virtual IQbfClause &newClause() = 0;
 
 		virtual bool isClause(htd::vertex_t vertex) const = 0;
 		virtual bool isVariable(htd::vertex_t vertex) const = 0;
+		virtual bool isExistential(variable_t variable) const = 0;
+		virtual bool isUniversal(variable_t variable) const = 0;
+		virtual short getQuantifierLevel(variable_t variable) const = 0;
+		virtual std::size_t getVariableCount() const = 0;
+		virtual bool isCnf() const = 0;
+		virtual bool isDnf() const = 0;
 
 		virtual const IQbfClause &clause(clause_t clause) const = 0;
 

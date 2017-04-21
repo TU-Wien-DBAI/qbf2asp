@@ -21,7 +21,7 @@ blank [ \t\r]
 eol \n
 zero 0
 
-word [1-9][0-9]*
+number [1-9][0-9]*
 exists e
 forall a
 comment c{blank}.*
@@ -61,10 +61,10 @@ yylloc->step();
 
 {dnf}		{ return token::DNF; }
 
-{word}      {
-				yylval->number = static_cast<std::size_t>(
-						std::stoull(yytext));
-				return token::WORD;
+{number}    {
+				yylval->number = static_cast<qbf2asp::num_t>(
+						std::stoul(yytext));
+				return token::NUMBER;
 			}
 
 {exists}    { return token::EXISTS; }

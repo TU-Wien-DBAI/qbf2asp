@@ -5,8 +5,6 @@
 
 #include "QbfInstance.hpp"
 
-#include "QbfClause.hpp"
-
 #include <qbf2asp/create.hpp>
 
 #include <utility>
@@ -18,14 +16,11 @@ namespace qbf2asp
 	using htd::IMutableHypergraph;
 	using htd::vertex_t;
 		
-	using std::string;
 	using std::size_t;
-	using std::make_pair;
-	using std::pair;
 	using std::unordered_map;
 	using std::unique_ptr;
 
-	QbfInstance::QbfInstance() : maxVariable_(0) { }
+	QbfInstance::QbfInstance() { }
 
 	QbfInstance::~QbfInstance()
 	{
@@ -33,23 +28,40 @@ namespace qbf2asp
 			delete clause;
 	}
 
-	void QbfInstance::addVariableName(variable_t variable, const string &name)
+	void QbfInstance::setCnf()
 	{
-		addVariable(variable);
-		variableNames_[variable] = name;
+		dnf_ = false;
 	}
 
-	void QbfInstance::addVariable(variable_t variable)
+	void QbfInstance::setDnf()
 	{
-		if(maxVariable_ < variable) maxVariable_ = variable;
+		dnf_ = true;
 	}
 
-	void QbfInstance::addClause(IQbfClause *clause)
+	void QbfInstance::setVariableCount(size_t variableCount)
 	{
-		if(!clause)
-			throw std::invalid_argument("Argument 'clause' cannot be null!");
+		variableCount_ = variableCount;
+	}
 
+	void QbfInstance::setQuantifierLevel(variable_t variable, short level)
+	{
+		if(variable > variableCount_)
+			throw std::invalid_argument(
+					"Argument 'variable' is not a variable.");
+		if(level < 0)
+			throw std::invalid_argument("Argument 'level' cannot be negative.");
+
+		quantifierLevels_[variable] = level;
+
+		if(outermostQuantifierLevel_ < level)
+			outermostQuantifierLevel_ = level;
+	}
+
+	IQbfClause &QbfInstance::newClause()
+	{
+		IQbfClause *clause = create::clause(*this);
 		clauses_.push_back(clause);
+		return *clause;
 	}
 
 	IHypergraph *QbfInstance::toHypergraph() const
@@ -62,13 +74,53 @@ namespace qbf2asp
 
 	bool QbfInstance::isClause(vertex_t vertex) const
 	{
-		return vertex > maxVariable_
-			&& vertex <= maxVariable_ + clauses_.size();
+		return vertex > variableCount_
+			&& vertex <= variableCount_ + clauses_.size();
 	}
 
 	bool QbfInstance::isVariable(vertex_t vertex) const
 	{
-		return vertex <= maxVariable_;
+		return vertex <= variableCount_;
+	}
+
+	bool QbfInstance::isExistential(variable_t variable) const
+	{
+		// if the quantifier level is even, and we are a cnf, return true
+		// if the quantifier level is odd, and we are a dnf, return true
+		return getQuantifierLevel(variable) % 2 ? !dnf_ : dnf_;
+	}
+
+	bool QbfInstance::isUniversal(variable_t variable) const
+	{
+		// if the quantifier level is odd, and we are a cnf, return true
+		// if the quantifier level is even, and we are a dnf, return true
+		return getQuantifierLevel(variable) % 2 ? dnf_ : !dnf_;
+	}
+
+	short QbfInstance::getQuantifierLevel(variable_t variable) const
+	{
+		unordered_map<size_t, short>::const_iterator iter;
+		if((iter = quantifierLevels_.find(variable)) == quantifierLevels_.end())
+		{
+			return outermostQuantifierLevel_ % 2 ?
+				outermostQuantifierLevel_ + 1 : outermostQuantifierLevel_;
+		}
+		return iter->second;
+	}
+
+	size_t QbfInstance::getVariableCount() const
+	{
+		return variableCount_;
+	}
+
+	bool QbfInstance::isCnf() const
+	{
+		return !dnf_;
+	}
+
+	bool QbfInstance::isDnf() const
+	{
+		return dnf_;
 	}
 
 	const IQbfClause &QbfInstance::clause(clause_t clause) const
@@ -76,7 +128,7 @@ namespace qbf2asp
 		if(!isClause(clause))
 			throw std::invalid_argument("Argument 'clause' is not a clause.");
 
-		return *clauses_[clause - maxVariable_ - 1];
+		return *clauses_[clause - variableCount_ - 1];
 	}
 
 	IQbfInstance::const_iterator QbfInstance::begin() const

@@ -5,12 +5,14 @@
 
 #include "QbfClause.hpp"
 
+#include <qbf2asp/IQbfInstance.hpp>
+
 namespace qbf2asp
 {
 	using std::vector;
 	using std::unordered_map;
 
-	QbfClause::QbfClause() { }
+	QbfClause::QbfClause(const IQbfInstance &instance) : instance_(instance) { }
 
 	QbfClause::~QbfClause() { }
 
@@ -24,6 +26,11 @@ namespace qbf2asp
 		variables_.insert(variable);
 		if(negated)
 			negated_.insert(variable);
+	}
+
+	const IQbfInstance &QbfClause::instance() const
+	{
+		return instance_;
 	}
 
 	bool QbfClause::contains(variable_t variable) const
@@ -40,15 +47,30 @@ namespace qbf2asp
 			const variable_vector &trueVariables,
 			const variable_vector &falseVariables) const
 	{
-		for(const variable_t variable : falseVariables)
-			if(isNegated(variable))
-				return true;
+		if(instance_.isCnf())
+		{
+			for(const variable_t variable : falseVariables)
+				if(isNegated(variable))
+					return true;
 
-		for(const variable_t variable : trueVariables)
-			if(contains(variable) && !isNegated(variable))
-				return true;
+			for(const variable_t variable : trueVariables)
+				if(contains(variable) && !isNegated(variable))
+					return true;
 
-		return false;
+			return false;
+		}
+		else
+		{
+			for(const variable_t variable : trueVariables)
+				if(isNegated(variable))
+					return false;
+
+			for(const variable_t variable : falseVariables)
+				if(contains(variable) && !isNegated(variable))
+					return false;
+
+			return true;
+		}
 	}
 
 	IQbfClause::const_iterator QbfClause::begin() const

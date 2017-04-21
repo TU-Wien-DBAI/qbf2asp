@@ -32,7 +32,7 @@ namespace qbf2asp
 
 		static IQbfInstance *instance();
 		
-		static IQbfClause *clause();
+		static IQbfClause *clause(const IQbfInstance &instance);
 		
 		static IQbf2AspAlgorithm *algorithm();
 		

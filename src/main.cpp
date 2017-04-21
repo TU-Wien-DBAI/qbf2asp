@@ -289,6 +289,9 @@ int main(int argc, char *argv[])
 	parser.reset();
 	sharp::Benchmark::registerTimestamp("parsing time");
 
+	std::cout << instance->isCnf() << " " 
+		<< *instance->begin()->begin() << std::endl;
+
 	if(!instance.get())
 		exit(EXIT_PARSING_ERROR);
 
