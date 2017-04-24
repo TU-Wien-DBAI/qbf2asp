@@ -3,31 +3,20 @@
 
 #include <qbf2asp/global>
 
-#include <sharp/main>
-
-#include <htd/main.hpp>
+#include <qbf2asp/IQbfInstance.hpp>
 
 namespace qbf2asp
 {
 
-	class QBF2ASP_API IQbf2AspAlgorithm : public sharp::ITreeAlgorithm
+	class QBF2ASP_API IQbf2AspAlgorithm
 	{
 	protected:
 		IQbf2AspAlgorithm &operator=(IQbf2AspAlgorithm &) { return *this; }
 
 	public:
-		virtual ~IQbf2AspAlgorithm() override = 0;
+		virtual ~IQbf2AspAlgorithm() = 0;
 
-		virtual std::vector<const htd::ILabelingFunction *>
-			preprocessOperations() const override;
-
-		virtual sharp::ITable *evaluateNode(
-				htd::vertex_t node,
-				const htd::ITreeDecomposition &decomposition,
-				const sharp::INodeTableMap &tables,
-				const sharp::IInstance &instance) const override;
-
-		virtual bool needAllTables() const override;
+		virtual void rewrite(const IQbfInstance &instance) const = 0;
 
 	}; // class IQbf2AspAlgorithm
 
