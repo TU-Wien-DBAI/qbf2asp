@@ -1,6 +1,4 @@
-#ifdef HAVE_CONFIG_H
-	#include <config.h>
-#endif
+#include "preamble.h"
 
 #include <qbf2asp/main>
 #include <sharp/main>
@@ -241,26 +239,28 @@ int main(int argc, char *argv[])
 		std::srand(opts.seed);
 	}
 
-	std::unique_ptr<htd::LibraryInstance> htdlib(
-			htd::createManagementInstance(htd::Id::FIRST));
 	if(opts.customTreeDecomposition)
 	{
+		std::unique_ptr<htd::LibraryInstance> htdlib(
+				htd::createManagementInstance(htd::Id::FIRST));
+
 		htd::IOrderingAlgorithm *ct = nullptr;
 
 		switch(opts.heuristic)
 		{
 		case Qbf2AspOptions::MAXIMUM_CARDINALITY_SEARCH:
 			ct = new htd::MaximumCardinalitySearchOrderingAlgorithm(
-					htdlib.get());
+					&qbf2asp::create::htdlib());
 			break;
 
 		case Qbf2AspOptions::MINIMUM_FILL_EDGES:
 		default:
-			ct = new htd::MinFillOrderingAlgorithm(htdlib.get());
+			ct = new htd::MinFillOrderingAlgorithm(&qbf2asp::create::htdlib());
 			break;
 		}
 
 		htdlib->orderingAlgorithmFactory().setConstructionTemplate(ct);
+		qbf2asp::create::set(htdlib.release());
 	}
 
 	//if(opts.customAlgorithm) qbf2asp::create::set(opts.configuration);
@@ -289,13 +289,39 @@ int main(int argc, char *argv[])
 	parser.reset();
 	sharp::Benchmark::registerTimestamp("parsing time");
 
-	std::cout << instance->isCnf() << " " 
-		<< *instance->begin()->begin() << std::endl;
-
 	if(!instance.get())
 		exit(EXIT_PARSING_ERROR);
 
-	/*std::cout << "Initializing solver..." << std::endl;
+	std::cout << "Initializing rewriter..." << std::endl;
+	std::unique_ptr<qbf2asp::IQbf2AspAlgorithm> algorithm(
+			qbf2asp::create::algorithm());
+
+	// check to see if we have a tree decomposition algorithm
+	if(!opts.customAlgorithm
+			|| opts.algorithm == Qbf2AspOptions::DATALOG_VIA_DECOMPOSITION)
+	{
+		std::unique_ptr<qbf2asp::IQbf2AspTreeAlgorithm> treeAlgorithm(
+				static_cast<qbf2asp::IQbf2AspTreeAlgorithm *>(
+					algorithm.release()));
+
+		if(opts.decompositionOnly)
+		{
+			std::cout << "Decomposing..." << std::endl;
+			std::cout << "TREEWIDTH: "
+				<< treeAlgorithm->decompose(*instance)
+				<< std::endl;
+		}
+		else
+		{
+			// TODO
+		}
+	}
+	else // no tree decomposition-based algorithm
+	{
+		// NO SUCH ALGORITHM IMPLEMENTED
+	}
+
+	/*std::cout << "Initializing rewriter..." << std::endl;
 	std::unique_ptr<htd::ITreeDecompositionAlgorithm> tdAlgorithm(
 			htd::TreeDecompositionAlgorithmFactory::instance()
 			.getTreeDecompositionAlgorithm());

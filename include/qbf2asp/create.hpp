@@ -14,6 +14,8 @@
 #include <qbf2asp/IQbf2AspAlgorithmFactory.hpp>
 #include <qbf2asp/IQbf2AspAlgorithm.hpp>
 
+#include <htd/main.hpp>
+
 namespace qbf2asp
 {
 	class QBF2ASP_API create
@@ -25,6 +27,7 @@ namespace qbf2asp
 		static void set(IQbfInstanceFactory *factory);
 		static void set(IQbfClauseFactory *factory);
 		static void set(IQbf2AspAlgorithmFactory *factory);
+		static void set(htd::LibraryInstance *htdlib);
 
 		static IQDIMACSParser *parser();
 
@@ -35,6 +38,8 @@ namespace qbf2asp
 		static IQbfClause *clause(const IQbfInstance &instance);
 		
 		static IQbf2AspAlgorithm *algorithm();
+
+		static const htd::LibraryInstance &htdlib();
 		
 	private:
 		create();

@@ -1,5 +1,5 @@
-#ifndef QBF2ASP_QBF2ASP_QBF2ASPALGORITHM_H_
-#define QBF2ASP_QBF2ASP_QBF2ASPALGORITHM_H_
+#ifndef QBF2ASP_QBF2ASP_IQBF2ASPALGORITHM_H_
+#define QBF2ASP_QBF2ASP_IQBF2ASPALGORITHM_H_
 
 #include <qbf2asp/global>
 
@@ -20,6 +20,8 @@ namespace qbf2asp
 
 	}; // class IQbf2AspAlgorithm
 
+	inline IQbf2AspAlgorithm::~IQbf2AspAlgorithm() { }
+
 } // namespace qbf2asp
 
-#endif // QBF2ASP_QBF2ASP_QBF2ASPALGORITHM_H_
+#endif // QBF2ASP_QBF2ASP_IQBF2ASPALGORITHM_H_

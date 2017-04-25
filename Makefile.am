@@ -70,6 +70,8 @@ libqbf2asp_la_include_HEADERS = \
 	\
 	include/qbf2asp/IQbf2AspAlgorithmFactory.hpp \
 	include/qbf2asp/IQbf2AspAlgorithm.hpp \
+	include/qbf2asp/IQbf2AspTreeAlgorithmFactory.hpp \
+	include/qbf2asp/IQbf2AspTreeAlgorithm.hpp \
 	include/qbf2asp/IQbfClauseFactory.hpp \
 	include/qbf2asp/IQbfClause.hpp \
 	include/qbf2asp/IQbfInstanceFactory.hpp \
@@ -92,10 +94,15 @@ libqbf2asp_la_SOURCES = \
 	\
 	src/create.cpp \
 	\
+	src/algorithms/Qbf2DatalogTreeAlgorithm.cpp \
+	src/algorithms/Qbf2DatalogTreeAlgorithm.hpp \
+	\
 	src/instances/QbfInstance.cpp \
 	src/instances/QbfInstance.hpp \
 	src/instances/QbfClause.cpp \
 	src/instances/QbfClause.hpp \
+	src/instances/QbfToPrimalHypergraphConverter.cpp \
+	src/instances/QbfToPrimalHypergraphConverter.hpp \
 	\
 	src/parsers/QDIMACSBisonParser.hpp \
 	src/parsers/QDIMACSBisonParser.yy \

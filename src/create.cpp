@@ -1,24 +1,29 @@
-#ifdef HAVE_CONFIG_H
-	#include <config.h>
-#endif
-
+#include "preamble.h"
 #include <qbf2asp/create.hpp>
 
 #include "parsers/QDIMACSParser.hpp"
 #include "instances/QbfClause.hpp"
 #include "instances/QbfInstance.hpp"
+#include "instances/QbfToPrimalHypergraphConverter.hpp"
+#include "algorithms/Qbf2DatalogTreeAlgorithm.hpp"
 
+#include <memory>
 #include <stdexcept>
 
 namespace qbf2asp
 {
+	using htd::LibraryInstance;
+
+	using std::unique_ptr;
+
 	namespace
 	{
 		IQDIMACSParserFactory *parserFactory_ = nullptr;
 		IQbfClauseFactory *clauseFactory_ = nullptr;
 		IQbfInstanceFactory *instanceFactory_ = nullptr;
 		IQbfToHypergraphConverterFactory *converterFactory_ = nullptr;
-		IQbf2AspAlgorithmFactory *algorithmFactory_ = nullptr;
+		IQbf2AspAlgorithmFactory *algorithmFactory_ = nullptr;	
+		unique_ptr<LibraryInstance> htdlib_(nullptr);
 	}
 
 	void create::set(IQDIMACSParserFactory *factory)
@@ -56,6 +61,11 @@ namespace qbf2asp
 		algorithmFactory_ = factory;
 	}
 
+	void create::set(LibraryInstance *htdlib)
+	{
+		htdlib_.reset(htdlib);
+	}
+
 	IQDIMACSParser *create::parser()
 	{
 		if(parserFactory_)
@@ -84,14 +94,23 @@ namespace qbf2asp
 	{
 		if(converterFactory_)
 			return converterFactory_->create();
-		return nullptr;
+
+		return new QbfToPrimalHypergraphConverter();
 	}
 
 	IQbf2AspAlgorithm *create::algorithm()
 	{
 		if(algorithmFactory_)
 			return algorithmFactory_->create();
-		return nullptr;
+
+		return new Qbf2DatalogTreeAlgorithm();
+	}
+
+	const LibraryInstance &create::htdlib()
+	{	
+		if(!htdlib_.get())
+			htdlib_.reset(htd::createManagementInstance(htd::Id::FIRST));
+		return *htdlib_;
 	}
 
 } // namespace qbf2asp

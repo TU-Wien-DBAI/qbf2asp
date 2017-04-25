@@ -3,6 +3,8 @@
 #include <qbf2asp/global>
 #include <qbf2asp/IQbf2AspAlgorithmFactory.hpp>
 #include <qbf2asp/IQbf2AspAlgorithm.hpp>
+#include <qbf2asp/IQbf2AspTreeAlgorithmFactory.hpp>
+#include <qbf2asp/IQbf2AspTreeAlgorithm.hpp>
 #include <qbf2asp/IQbfClauseFactory.hpp>
 #include <qbf2asp/IQbfClause.hpp>
 #include <qbf2asp/IQbfInstanceFactory.hpp>

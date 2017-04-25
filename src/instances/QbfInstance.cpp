@@ -13,7 +13,6 @@
 namespace qbf2asp
 {
 	using htd::IHypergraph;
-	using htd::IMutableHypergraph;
 	using htd::vertex_t;
 		
 	using std::size_t;
