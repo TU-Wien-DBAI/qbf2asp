@@ -96,6 +96,8 @@ libqbf2asp_la_SOURCES = \
 	\
 	src/algorithms/Qbf2DatalogTreeAlgorithm.cpp \
 	src/algorithms/Qbf2DatalogTreeAlgorithm.hpp \
+	src/algorithms/Qbf2DatalogTable.cpp \
+	src/algorithms/Qbf2DatalogTable.hpp \
 	\
 	src/instances/QbfInstance.cpp \
 	src/instances/QbfInstance.hpp \

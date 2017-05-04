@@ -26,12 +26,14 @@ namespace qbf2asp
 		IMutableHypergraph *hypergraph = 
 			create::htdlib().hypergraphFactory().createInstance();
 
-		for(size_t vertex = instance.getVariableCount(); vertex > 0; --vertex)
+		for(size_t vertex = 1;  vertex <= instance.variableCount(); ++vertex)
 			hypergraph->addVertex();
 
+		clause_t clause = instance.variableCount + 1;
 		for(const IQbfClause &clause : instance)
 		{
 			vector<vertex_t> edge;
+			edge.push_back(clause++);
 
 			for(variable_t variable : clause)
 				edge.push_back(variable);

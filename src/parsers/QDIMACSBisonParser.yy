@@ -160,10 +160,10 @@ cnf      :	PROBLEM CNF varcount clausecnt EOL
 				instance.setVariableCount($3);
 
 				clauseCount_ = $4;
-				unseenVariables_.reserve(instance.getVariableCount());
+				unseenVariables_.reserve(instance.variableCount());
 
 				for(num_t var = 1;
-				    var <= (num_t)instance.getVariableCount();
+				    var <= (num_t)instance.variableCount();
 					++var)
 				{
 					unseenVariables_.insert(var);
@@ -177,10 +177,10 @@ dnf		 :	PROBLEM DNF varcount clausecnt EOL
 				instance.setVariableCount($3);
 
 				clauseCount_ = $4;
-				unseenVariables_.reserve(instance.getVariableCount());
+				unseenVariables_.reserve(instance.variableCount());
 
 				for(num_t var = 1;
-				    var <= (num_t)instance.getVariableCount();
+				    var <= (num_t)instance.variableCount();
 					++var)
 				{
 					unseenVariables_.insert(var);
@@ -251,7 +251,7 @@ qvars    :  qvars variable
 
 variable :  NUMBER
 		 	{
-				if($1 > (num_t)instance.getVariableCount())
+				if($1 > (num_t)instance.variableCount())
 				{
 					error(yyla.location, "variable out of bounds");
 					YYERROR;

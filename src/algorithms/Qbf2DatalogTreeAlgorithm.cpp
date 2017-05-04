@@ -1,6 +1,8 @@
 #include "../preamble.h"
 #include "Qbf2DatalogTreeAlgorithm.hpp"
 
+#include "Qbf2DatalogTable.hpp"
+
 #include <qbf2asp/create.hpp>
 
 #include <memory>
@@ -75,7 +77,6 @@ namespace qbf2asp
 			const INodeTableMap &tables,
 			const IQbfInstance &instance) const
 	{
-		//TODO
 		return nullptr;
 	}
 

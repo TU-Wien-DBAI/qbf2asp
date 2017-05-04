@@ -18,7 +18,7 @@ namespace qbf2asp
 
 		virtual void setCnf() override;
 		virtual void setDnf() override;
-		virtual void setVariableCount(std::size_t variableCount) override;
+		virtual void setVariableCount(variable_t variableCount) override;
 
 		virtual void setQuantifierLevel(
 				variable_t variable,
@@ -32,8 +32,11 @@ namespace qbf2asp
 		virtual bool isVariable(htd::vertex_t vertex) const override;
 		virtual bool isExistential(variable_t variable) const override;
 		virtual bool isUniversal(variable_t variable) const override;
-		virtual short getQuantifierLevel(variable_t variable) const override;
-		virtual std::size_t getVariableCount() const override;
+		virtual short quantifierLevel(variable_t variable) const override;
+		virtual short outermostQuantifierLevel() const override;
+		virtual const std::unordered_set<variable_t> &variables(
+				short level) const override;
+		virtual variable_t variableCount() const override;
 		virtual bool isCnf() const override;
 		virtual bool isDnf() const override;
 
@@ -44,8 +47,10 @@ namespace qbf2asp
 
 	private:
 		bool dnf_;
-		std::size_t variableCount_;
-		std::unordered_map<std::size_t, short> quantifierLevels_;
+		variable_t variableCount_;
+		std::unordered_map<variable_t, short> quantifierLevels_;
+		std::unordered_map<short, std::unordered_set<variable_t> > variables_;
+		std::unordered_set<variable_t> unquantified_;
 		short outermostQuantifierLevel_;
 		std::vector<IQbfClause *> clauses_;
 

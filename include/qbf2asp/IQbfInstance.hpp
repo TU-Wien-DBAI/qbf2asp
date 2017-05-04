@@ -11,9 +11,7 @@
 
 #include <htd/main.hpp>
 
-#include <string>
-#include <utility>
-#include <cstddef>
+#include <unordered_set>
 
 namespace qbf2asp
 {
@@ -30,7 +28,7 @@ namespace qbf2asp
 
 		virtual void setCnf() = 0;
 		virtual void setDnf() = 0;
-		virtual void setVariableCount(std::size_t variableCount) = 0;
+		virtual void setVariableCount(variable_t variableCount) = 0;
 
 		virtual void setQuantifierLevel(variable_t variable, short level) = 0;
 		virtual IQbfClause &newClause() = 0;
@@ -39,8 +37,11 @@ namespace qbf2asp
 		virtual bool isVariable(htd::vertex_t vertex) const = 0;
 		virtual bool isExistential(variable_t variable) const = 0;
 		virtual bool isUniversal(variable_t variable) const = 0;
-		virtual short getQuantifierLevel(variable_t variable) const = 0;
-		virtual std::size_t getVariableCount() const = 0;
+		virtual short quantifierLevel(variable_t variable) const = 0;
+		virtual short outermostQuantifierLevel() const = 0;
+		virtual const std::unordered_set<variable_t> &variables(
+				short level) const = 0;
+		virtual variable_t variableCount() const = 0;
 		virtual bool isCnf() const = 0;
 		virtual bool isDnf() const = 0;
 

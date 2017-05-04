@@ -7,7 +7,6 @@
 
 #include <qbf2asp/create.hpp>
 
-#include <utility>
 #include <stdexcept>
 
 namespace qbf2asp
@@ -15,9 +14,13 @@ namespace qbf2asp
 	using htd::IHypergraph;
 	using htd::vertex_t;
 		
-	using std::size_t;
 	using std::unordered_map;
+	using std::unordered_set;
+	using std::vector;
 	using std::unique_ptr;
+
+	using std::invalid_argument;
+	using std::logic_error;
 
 	QbfInstance::QbfInstance() { }
 
@@ -37,20 +40,33 @@ namespace qbf2asp
 		dnf_ = true;
 	}
 
-	void QbfInstance::setVariableCount(size_t variableCount)
+	void QbfInstance::setVariableCount(variable_t variableCount)
 	{
+		if(clauses_.size())
+			throw logic_error("Instance already has clauses.");
+
+		unquantified_.clear();
+		variables_.clear();
+		quantifierLevels_.clear();
 		variableCount_ = variableCount;
+
+		unquantified_.reserve(variableCount_);
+		for(variable_t var = 1; var <= variableCount; ++var)
+			unquantified_.insert(var);
 	}
 
 	void QbfInstance::setQuantifierLevel(variable_t variable, short level)
 	{
 		if(variable > variableCount_)
-			throw std::invalid_argument(
-					"Argument 'variable' is not a variable.");
+			throw invalid_argument("Argument 'variable' is not a variable.");
+		if(unquantified_.find(variable) == unquantified_.end())
+			throw invalid_argument("Argument 'variable' already has a level.");
 		if(level < 0)
-			throw std::invalid_argument("Argument 'level' cannot be negative.");
+			throw invalid_argument("Argument 'level' cannot be negative.");
 
+		unquantified_.erase(variable);
 		quantifierLevels_[variable] = level;
+		variables_[level].insert(variable);
 
 		if(outermostQuantifierLevel_ < level)
 			outermostQuantifierLevel_ = level;
@@ -86,19 +102,19 @@ namespace qbf2asp
 	{
 		// if the quantifier level is even, and we are a cnf, return true
 		// if the quantifier level is odd, and we are a dnf, return true
-		return getQuantifierLevel(variable) % 2 ? !dnf_ : dnf_;
+		return quantifierLevel(variable) % 2 ? !dnf_ : dnf_;
 	}
 
 	bool QbfInstance::isUniversal(variable_t variable) const
 	{
 		// if the quantifier level is odd, and we are a cnf, return true
 		// if the quantifier level is even, and we are a dnf, return true
-		return getQuantifierLevel(variable) % 2 ? dnf_ : !dnf_;
+		return quantifierLevel(variable) % 2 ? dnf_ : !dnf_;
 	}
 
-	short QbfInstance::getQuantifierLevel(variable_t variable) const
+	short QbfInstance::quantifierLevel(variable_t variable) const
 	{
-		unordered_map<size_t, short>::const_iterator iter;
+		unordered_map<variable_t, short>::const_iterator iter;
 		if((iter = quantifierLevels_.find(variable)) == quantifierLevels_.end())
 		{
 			return outermostQuantifierLevel_ % 2 ?
@@ -107,7 +123,23 @@ namespace qbf2asp
 		return iter->second;
 	}
 
-	size_t QbfInstance::getVariableCount() const
+	short QbfInstance::outermostQuantifierLevel() const
+	{
+		return quantifierLevels_.size() < variableCount_
+				&& outermostQuantifierLevel_ % 2 ?
+			outermostQuantifierLevel_ + 1 : outermostQuantifierLevel_;
+	}
+
+	const unordered_set<variable_t> &QbfInstance::variables(short level) const
+	{
+		if(level > outermostQuantifierLevel())
+			throw invalid_argument("Argument 'level' is too high.");
+
+		return const_cast<unordered_map<short, unordered_set<variable_t> > &>(
+				variables_)[level];
+	}
+
+	variable_t QbfInstance::variableCount() const
 	{
 		return variableCount_;
 	}
