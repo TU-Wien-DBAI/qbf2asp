@@ -67,27 +67,34 @@ libqbf2asp_la_SOURCES = \
 	src/util/debug.hpp
 
 # list of public header files used when tree decomposition is enabled
-CONDITIONAL_HEADERS_DECOMPOSITION = \
+HEADERS_DECOMPOSITION = \
 	include/qbf2asp/IQbf2AspTreeAlgorithmFactory.hpp \
 	include/qbf2asp/IQbf2AspTreeAlgorithm.hpp \
+	include/qbf2asp/IQbf2AspTreeRewriterFactory.hpp \
+	include/qbf2asp/IQbf2AspTreeRewriter.hpp \
 	include/qbf2asp/IQbfToHypergraphConverterFactory.hpp \
-	include/qbf2asp/IQbfToHypergraphConverter.hpp
+	include/qbf2asp/IQbfToHypergraphConverter.hpp \
+	\
+	include/qbf2asp/DecomposableQbfInstance.hpp
 
 # list source code files used when tree decomposition is enabled
-CONDITIONAL_SOURCES_DECOMPOSITION = \
+SOURCES_DECOMPOSITION = \
 	src/algorithms/Qbf2DatalogTable.cpp \
 	src/algorithms/Qbf2DatalogTable.hpp \
 	src/algorithms/Qbf2DatalogTreeAlgorithm.cpp \
 	src/algorithms/Qbf2DatalogTreeAlgorithm.hpp \
+	src/algorithms/Qbf2DatalogTreeRewriter.cpp \
+	src/algorithms/Qbf2DatalogTreeRewriter.hpp \
 	\
+	src/instances/DecomposableQbfInstance.cpp \
 	src/instances/PrimalHypergraphConverter.cpp \
 	src/instances/PrimalHypergraphConverter.hpp
 
 # tell automake to also distribute/compile the tree decomposition files
 # if the ENABLE_DECOMPOSITION conditional variable is set
 if ENABLE_DECOMPOSITION
-libqbf2asp_la_include_HEADERS += CONDITIONAL_HEADERS_DECOMPOSITION
-libqbf2asp_la_SOURCES += CONDITIONAL_SOURCES_DECOMPOSITION
+libqbf2asp_la_include_HEADERS += $(HEADERS_DECOMPOSITION)
+libqbf2asp_la_SOURCES += $(SOURCES_DECOMPOSITION)
 endif
 
 # tell automake that the installation directory for public header files of the

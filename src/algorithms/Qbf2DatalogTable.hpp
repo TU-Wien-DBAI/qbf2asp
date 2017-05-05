@@ -3,14 +3,14 @@
 
 #include <qbf2asp/global>
 
-#include <qbf2asp/Variable.hpp>
+#include <logic/parsers>
 
 #include <sharp/main>
 
 #include <htd/main.hpp>
 
 #include <vector>
-#include <unordered_map>
+#include <unordered_set>
 
 namespace qbf2asp
 {
@@ -24,9 +24,9 @@ namespace qbf2asp
 		Qbf2DatalogTable();
 		virtual ~Qbf2DatalogTable() override;
 
-		std::vector<variable_t> current;
+		std::vector<logic::variable_t> current;
 		short outermostQuantifierLevel;
-		std::unordered_map<variable_t> remainingOutermost;
+		std::unordered_set<logic::variable_t> remainingOutermost;
 
 	}; // class Qbf2DatalogTable
 

@@ -3,7 +3,7 @@
 
 #include <qbf2asp/global>
 
-#include <qbf2asp/IQbfInstance.hpp>
+#include <logic/parsers>
 
 #include <htd/main.hpp>
 
@@ -19,7 +19,7 @@ namespace qbf2asp
 		virtual ~IQbfToHypergraphConverter() = 0;
 
 		virtual htd::IHypergraph *convert(
-				const IQbfInstance &instance) const = 0;
+				const logic::IQbfInstance &instance) const = 0;
 
 	}; // class IQbfToHypergraphConverter
 

@@ -9,6 +9,11 @@
 
 namespace qbf2asp
 {
+	using logic::IQbfInstance;
+	using logic::IQbfClause;
+	using logic::variable_t;
+	using logic::clause_t;
+
 	using htd::vertex_t;
 	using htd::IHypergraph;
 	using htd::IMutableHypergraph;

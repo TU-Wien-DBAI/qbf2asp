@@ -3,21 +3,19 @@
 
 #include <qbf2asp/global>
 
-#include "QbfInstance.hpp"
-
 #include <qbf2asp/IQbfToHypergraphConverter.hpp>
 
 namespace qbf2asp
 {
 	class QBF2ASP_LOCAL PrimalHypergraphConverter
-		: public IHypergraphConverter
+		: public IQbfToHypergraphConverter
 	{
 	public:
 		PrimalHypergraphConverter();
 		virtual ~PrimalHypergraphConverter() override;
 
 		virtual htd::IHypergraph *convert(
-				const IQbfInstance &instance) const override;
+				const logic::IQbfInstance &instance) const override;
 
 	}; // class PrimalHypergraphConverter
 

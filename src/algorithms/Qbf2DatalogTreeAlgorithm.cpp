@@ -4,13 +4,16 @@
 #include "Qbf2DatalogTable.hpp"
 
 #include <qbf2asp/create.hpp>
+#include <qbf2asp/DecomposableQbfInstance.hpp>
 
 #include <memory>
 
 namespace qbf2asp
 {
+	using logic::IQbfInstance;
+
 	using sharp::INodeTableMap;
-	using sharp::IInstance;
+	using sharp::IDecomposableInstance;
 	using sharp::ITable;
 
 	using htd::IHypergraph;
@@ -22,48 +25,33 @@ namespace qbf2asp
 	using std::unique_ptr;
 	using std::size_t;
 	using std::vector;
+	using std::ostream;
 
-	Qbf2DatalogTreeAlgorithm::Qbf2DatalogTreeAlgorithm()
-	{
-		tdAlgorithm_.reset(create::htdlib()
-				.treeDecompositionAlgorithmFactory()
-				.createInstance());
-
-		solver_.reset(sharp::create::treeSolver(*tdAlgorithm_, *this));
-	}
+	Qbf2DatalogTreeAlgorithm::Qbf2DatalogTreeAlgorithm() : out_(&std::cout) { }
 
 	Qbf2DatalogTreeAlgorithm::~Qbf2DatalogTreeAlgorithm() { }
 
-	size_t Qbf2DatalogTreeAlgorithm::decompose(
-			const IQbfInstance &instance) const
+	void Qbf2DatalogTreeAlgorithm::setOutputStream(ostream &out)
 	{
-		unique_ptr<ITreeDecomposition> td(solver_->decompose(instance));
-		return td->maximumBagSize() - 1;
-	}
-
-	void Qbf2DatalogTreeAlgorithm::rewrite(const IQbfInstance &instance) const
-	{
-		unique_ptr<ITreeDecomposition> td(solver_->decompose(instance));
-		sharp::ISolution *solution = solver_->solve(instance, *td);
-
-		if(solution)
-			delete solution;
+		out_ = &out;
 	}
 
 	vector<const ILabelingFunction *>
 	Qbf2DatalogTreeAlgorithm::preprocessOperations() const
-	{ }
+	{
+		return vector<const ILabelingFunction *>();
+	}
 	
 	ITable *Qbf2DatalogTreeAlgorithm::evaluateNode(
 			vertex_t node,
 			const ITreeDecomposition &decomposition,
 			const INodeTableMap &tables,
-			const IInstance &instance) const
+			const IDecomposableInstance &instance) const
 	{
-		const IQbfInstance &qbfInstance(
-				static_cast<const IQbfInstance &>(instance));
+		const DecomposableQbfInstance &qbfInstance(
+				static_cast<const DecomposableQbfInstance &>(instance));
 
-		return evaluateNode(node, decomposition, tables, qbfInstance);
+		return evaluateNode(node, decomposition, tables, qbfInstance.content());
 	}
 
 	bool Qbf2DatalogTreeAlgorithm::needAllTables() const

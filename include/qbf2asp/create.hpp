@@ -3,12 +3,16 @@
 
 #include <qbf2asp/global>
 
-#include <qbf2asp/IQbf2AspAlgorithmFactory.hpp>
-#include <qbf2asp/IQbf2AspAlgorithm.hpp>
+#include <qbf2asp/IQbf2AspRewriterFactory.hpp>
+#include <qbf2asp/IQbf2AspRewriter.hpp>
 
 // tree decomposition-based conditional includes
 #ifdef ENABLE_DECOMPOSITION
 
+#  include <qbf2asp/IQbf2AspTreeRewriterFactory.hpp>
+#  include <qbf2asp/IQbf2AspTreeRewriter.hpp>
+#  include <qbf2asp/IQbf2AspTreeAlgorithmFactory.hpp>
+#  include <qbf2asp/IQbf2AspTreeAlgorithm.hpp>
 #  include <qbf2asp/IQbfToHypergraphConverterFactory.hpp>
 #  include <qbf2asp/IQbfToHypergraphConverter.hpp>
 
@@ -23,15 +27,19 @@ namespace qbf2asp
 	{
 	public:
 
-		static void set(IQbf2AspAlgorithmFactory *factory);
+		static void set(IQbf2AspRewriterFactory *factory);
 
-		static IQbf2AspAlgorithm *algorithm();
+		static IQbf2AspRewriter *rewriter();
 
 // tree decomposition-based conditional methods
 #ifdef ENABLE_DECOMPOSITION
+		static void set(IQbf2AspTreeRewriterFactory *factory);
+		static void set(IQbf2AspTreeAlgorithmFactory *factory);
 		static void set(IQbfToHypergraphConverterFactory *factory);
 		static void set(htd::LibraryInstance *htdlib);
 
+		static IQbf2AspTreeRewriter *treeRewriter();
+		static IQbf2AspTreeAlgorithm *treeAlgorithm();
 		static IQbfToHypergraphConverter *hypergraphConverter();
 		static const htd::LibraryInstance &htdlib();
 #endif // ENABLE_DECOMPOSITION

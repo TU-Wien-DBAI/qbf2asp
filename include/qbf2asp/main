@@ -12,6 +12,8 @@
 #ifdef ENABLE_DECOMPOSITION
 #  include <qbf2asp/IQbf2AspTreeAlgorithmFactory.hpp>
 #  include <qbf2asp/IQbf2AspTreeAlgorithm.hpp>
+#  include <qbf2asp/IQbf2AspTreeRewriterFactory.hpp>
+#  include <qbf2asp/IQbf2AspTreeRewriter.hpp>
 #  include <qbf2asp/IQbfToHypergraphConverterFactory.hpp>
 #  include <qbf2asp/IQbfToHypergraphConverter.hpp>
 #endif // ENABLE_DECOMPOSITION

@@ -3,27 +3,23 @@
 
 #include <qbf2asp/global>
 
-#include <qbf2asp/IQbf2AspAlgorithm.hpp>
-
 #include <sharp/main>
 
-#include <cstdlib>
+#include <iostream>
 
 namespace qbf2asp
 {
 
-	class QBF2ASP_API IQbf2AspTreeAlgorithm 
-		:	public IQbf2AspAlgorithm, 
-			public sharp::ITreeAlgorithm
+	class QBF2ASP_API IQbf2AspTreeAlgorithm : public sharp::ITreeAlgorithm
 	{
 	protected:
 		IQbf2AspTreeAlgorithm &operator=(IQbf2AspTreeAlgorithm &)
 		{ return *this; }
 
 	public:
-		virtual ~IQbf2AspTreeAlgorithm() override = 0;
+		virtual ~IQbf2AspTreeAlgorithm() = 0;
 
-		virtual std::size_t decompose(const IQbfInstance &instance) const = 0;
+		virtual void setOutputStream(std::ostream &out) = 0;
 
 	}; // class IQbf2AspTreeAlgorithm
 
