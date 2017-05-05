@@ -68,7 +68,7 @@ AC_ARG_ENABLE([decomposition],
 	    [enable_decomposition=no])
 AC_MSG_RESULT([$enable_decomposition])
 AM_CONDITIONAL([ENABLE_DECOMPOSITION], [test x$enable_decomposition = xyes])
-AC_HEADER([include/qbf2asp/ac_enable_decomposition.h])
+AC_CONFIG_HEADERS([include/qbf2asp/ac_enable_decomposition.h])
 
 # define optional packages to use (--with-PACKAGE)
 ##################################################
@@ -77,8 +77,13 @@ AC_HEADER([include/qbf2asp/ac_enable_decomposition.h])
 ##############################################################################
 
 # define that we are building the library, and should export symbols
-AC_DEFINE_UNQUOTED([QBF2ASP_EXPORTS], [1], [Define to 1 if the library is being
-		                          built (as opposed to being used).])
+AC_DEFINE_UNQUOTED([QBF2ASP_EXPORTS], [1],
+				   [Define to 1 if the library is being built.])
+
+# define that we are using tree decompositions (or not)
+AS_IF([test "x$enable_decomposition" = xyes],
+	  [AC_DEFINE_UNQUOTED([ENABLE_DECOMPOSITION], [1],
+						  [Define as 1 if tree decompositions are enabled.])])
 
 # check that libraries are present on the system
 ################################################

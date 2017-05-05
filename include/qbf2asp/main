@@ -1,16 +1,17 @@
-#include <qbf2asp/Clause.hpp>
-#include <qbf2asp/create.hpp>
+// include generated configuration headers
+#include <qbf2asp/configuration.h>
+
+// include files that are always available
 #include <qbf2asp/global>
+#include <qbf2asp/create.hpp>
 #include <qbf2asp/IQbf2AspAlgorithmFactory.hpp>
 #include <qbf2asp/IQbf2AspAlgorithm.hpp>
-#include <qbf2asp/IQbf2AspTreeAlgorithmFactory.hpp>
-#include <qbf2asp/IQbf2AspTreeAlgorithm.hpp>
-#include <qbf2asp/IQbfClauseFactory.hpp>
-#include <qbf2asp/IQbfClause.hpp>
-#include <qbf2asp/IQbfInstanceFactory.hpp>
-#include <qbf2asp/IQbfInstance.hpp>
-#include <qbf2asp/IQbfToHypergraphConverterFactory.hpp>
-#include <qbf2asp/IQbfToHypergraphConverter.hpp>
-#include <qbf2asp/IQDIMACSParserFactory.hpp>
-#include <qbf2asp/IQDIMACSParser.hpp>
-#include <qbf2asp/Variable.hpp>
+
+// check if we have tree decompositions enabled
+// and if yes, include relevant additional headers
+#ifdef ENABLE_DECOMPOSITION
+#  include <qbf2asp/IQbf2AspTreeAlgorithmFactory.hpp>
+#  include <qbf2asp/IQbf2AspTreeAlgorithm.hpp>
+#  include <qbf2asp/IQbfToHypergraphConverterFactory.hpp>
+#  include <qbf2asp/IQbfToHypergraphConverter.hpp>
+#endif // ENABLE_DECOMPOSITION

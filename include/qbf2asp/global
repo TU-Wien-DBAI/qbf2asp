@@ -1,6 +1,8 @@
 #ifndef QBF2ASP_QBF2ASP_GLOBAL_H_
 #define QBF2ASP_QBF2ASP_GLOBAL_H_
 
+#include <qbf2asp/configuration.h>
+
 // Generic helper definitions for shared library support
 #if defined _WIN32 || defined __CYGWIN__
   #define QBF2ASP_HELPER_IMPORT __declspec(dllimport)
