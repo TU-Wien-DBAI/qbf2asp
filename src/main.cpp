@@ -198,7 +198,7 @@ namespace
 	void printBenchmarks(int signal)
 	{
 		std::cerr << std::endl;
-		sharp::Benchmark::printBenchmarks(std::cerr, false);
+		logic::Benchmark::printBenchmarks(std::cerr, false);
 
 		exit(signal);
 	}
@@ -206,7 +206,7 @@ namespace
 	void printBenchmarksMachineReadable(int signal)
 	{
 		std::cerr << std::endl;
-		sharp::Benchmark::printBenchmarks(std::cerr, true);
+		logic::Benchmark::printBenchmarks(std::cerr, true);
 
 		exit(signal);
 	}
@@ -214,7 +214,7 @@ namespace
 
 int main(int argc, char *argv[])
 {
-	sharp::Benchmark::registerTimestamp("program start");
+	logic::Benchmark::registerTimestamp("program start");
 
 	const Qbf2AspOptions opts(argc, argv);
 
@@ -311,7 +311,7 @@ int main(int argc, char *argv[])
 	std::unique_ptr<logic::IQbfInstance> instance(
 			parser->parse(inputStream));
 	parser.reset();
-	sharp::Benchmark::registerTimestamp("parsing time");
+	logic::Benchmark::registerTimestamp("parsing time");
 
 	if(!instance.get())
 		exit(EXIT_PARSING_ERROR);
@@ -364,7 +364,7 @@ int main(int argc, char *argv[])
 	if(opts.printBenchmarks)
 	{
 		std::cerr << std::endl;
-		sharp::Benchmark::printBenchmarks(std::cerr, opts.printMachineReadable);
+		logic::Benchmark::printBenchmarks(std::cerr, opts.printMachineReadable);
 	}
 
 	return EXIT_SUCCESS;

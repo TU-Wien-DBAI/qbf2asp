@@ -88,11 +88,17 @@ AS_IF([test "x$enable_decomposition" = xyes],
 # check that libraries are present on the system
 ################################################
 
+# check for logichelpers library
+#TODO: check for "none required" output of AC_SEARCH_LIBS
+AC_SEARCH_LIBS([logichelpers_version], [logichelpers],
+	        [LOGICHELPERS_LIBS=$ac_cv_search_logichelpers_version],
+	        [AC_MSG_FAILURE([liblogichelpers not found])])
+
 # check for logicparsers library
+#TODO: check for "none required" output of AC_SEARCH_LIBS
 AC_SEARCH_LIBS([logicparsers_version], [logicparsers],
 			   [LOGICPARSERS_LIBS=$ac_cv_search_logicparsers_version],
 			   [AC_MSG_FAILURE([liblogicparsers not found])])
-
 
 # check for decomposition libraries if enabled
 AS_IF([test "x$enable_decomposition" = xyes],
