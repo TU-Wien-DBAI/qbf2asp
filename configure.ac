@@ -54,6 +54,7 @@ CPPFLAGS+=$CXXFLAGS
 # add the option to enable the tree decomposition feature,
 # also pass a corresponding conditional variable to automake,
 # and generate our corresponding conditional header from the template
+# also, if enabled, pass this to distcheck as well
 AC_MSG_CHECKING([whether to build with tree decomposition support])
 AC_ARG_ENABLE([decomposition],
 	    [AS_HELP_STRING([--enable-decomposition],
@@ -64,7 +65,7 @@ AC_ARG_ENABLE([decomposition],
 		   		AC_MSG_ERROR([bad value ${enableval} for decomposition option])
 		   		;;
 	     esac
-       	     enable_decomposition=$enableval],
+       	   enable_decomposition=$enableval],
 	    [enable_decomposition=no])
 AC_MSG_RESULT([$enable_decomposition])
 AM_CONDITIONAL([ENABLE_DECOMPOSITION], [test x$enable_decomposition = xyes])

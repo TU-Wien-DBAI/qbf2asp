@@ -2,6 +2,13 @@
 # FLAGS:                   #
 ############################
 
+# tell automake about the configure flags it should use for distcheck
+AM_DISTCHECK_CONFIGURE_FLAGS =
+
+if ENABLE_DECOMPOSITION
+AM_DISTCHECK_CONFIGURE_FLAGS += --enable-decomposition
+endif
+
 # tell automake to pass certain flags to autoconf on re-run
 ACLOCAL_AMFLAGS = -I m4 ${ACLOCAL_FLAGS}
 
