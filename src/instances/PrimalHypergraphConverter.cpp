@@ -1,5 +1,5 @@
 #include "../preamble.h"
-#include "QbfToPrimalHypergraphConverter.hpp"
+#include "PrimalHypergraphConverter.hpp"
 
 #include <qbf2asp/create.hpp>
 
@@ -16,11 +16,11 @@ namespace qbf2asp
 
 	using std::vector;
 
-	QbfToPrimalHypergraphConverter::QbfToPrimalHypergraphConverter() { }
+	PrimalHypergraphConverter::PrimalHypergraphConverter() { }
 
-	QbfToPrimalHypergraphConverter::~QbfToPrimalHypergraphConverter() { }
+	PrimalHypergraphConverter::~PrimalHypergraphConverter() { }
 
-	IHypergraph *QbfToPrimalHypergraphConverter::convert(
+	IHypergraph *PrimalHypergraphConverter::convert(
 			const IQbfInstance &instance) const
 	{
 		IMutableHypergraph *hypergraph = 

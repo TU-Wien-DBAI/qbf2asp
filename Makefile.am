@@ -33,45 +33,62 @@ BUILT_SOURCES =
 # tell automake which libraries to build
 lib_LTLIBRARIES = libqbf2asp.la
 
-#----------------------------#
+#-----------------------------#
 # libqbf2asp.la build options #
-#----------------------------#
+#-----------------------------#
 
 # list the names of the public header files of the libqbf2asp.la library
 libqbf2asp_la_include_HEADERS = \
 	include/qbf2asp/main \
 	include/qbf2asp/global \
 	\
+	include/qbf2asp/configuration.h \
+	\
 	include/qbf2asp/IQbf2AspAlgorithmFactory.hpp \
 	include/qbf2asp/IQbf2AspAlgorithm.hpp \
-	include/qbf2asp/IQbf2AspTreeAlgorithmFactory.hpp \
-	include/qbf2asp/IQbf2AspTreeAlgorithm.hpp \
-	include/qbf2asp/IQbfToHypergraphConverterFactory.hpp \
-	include/qbf2asp/IQbfToHypergraphConverter.hpp \
 	\
 	include/qbf2asp/create.hpp
 
+# list public header files that should be installed, but not distributed
+# useful for generated headers, which should not be distributed as source code
+nodist_libqbf2asp_la_include_HEADERS = \
+	include/qbf2asp/ac_enable_decomposition.h
+
 # list all source code files for the libqbf2asp.la library
-# don't need to list the generated .cc files from bison and flex
-# since automake already knows about them, and adds them automatically
 libqbf2asp_la_SOURCES = \
 	src/assembly.cpp \
 	src/preamble.h \
 	\
 	src/create.cpp \
 	\
-	src/algorithms/Qbf2DatalogTreeAlgorithm.cpp \
-	src/algorithms/Qbf2DatalogTreeAlgorithm.hpp \
-	src/algorithms/Qbf2DatalogTable.cpp \
-	src/algorithms/Qbf2DatalogTable.hpp \
-	\
-	src/instances/QbfToPrimalHypergraphConverter.cpp \
-	src/instances/QbfToPrimalHypergraphConverter.hpp \
-	\
 	src/util/errorhandling.cpp \
 	src/util/errorhandling.hpp \
 	src/util/debug.cpp \
 	src/util/debug.hpp
+
+# list of public header files used when tree decomposition is enabled
+CONDITIONAL_HEADERS_DECOMPOSITION = \
+	include/qbf2asp/IQbf2AspTreeAlgorithmFactory.hpp \
+	include/qbf2asp/IQbf2AspTreeAlgorithm.hpp \
+	include/qbf2asp/IQbfToHypergraphConverterFactory.hpp \
+	include/qbf2asp/IQbfToHypergraphConverter.hpp
+
+# list source code files used when tree decomposition is enabled
+CONDITIONAL_SOURCES_DECOMPOSITION = \
+	src/algorithms/Qbf2DatalogTable.cpp \
+	src/algorithms/Qbf2DatalogTable.hpp \
+	src/algorithms/Qbf2DatalogTreeAlgorithm.cpp \
+	src/algorithms/Qbf2DatalogTreeAlgorithm.hpp \
+	\
+	src/instances/PrimalHypergraphConverter.cpp \
+	src/instances/PrimalHypergraphConverter.hpp
+
+# tell automake to also distribute/compile the tree decomposition files
+# if the ENABLE_DECOMPOSITION conditional variable is set
+if ENABLE_DECOMPOSITION
+libqbf2asp_la_include_HEADERS += CONDITIONAL_HEADERS_DECOMPOSITION
+libqbf2asp_la_SOURCES += CONDITIONAL_SOURCES_DECOMPOSITION
+endif
 
 # tell automake that the installation directory for public header files of the
 # libqbf2asp.la library should be a subfolder in the default ${includedir}

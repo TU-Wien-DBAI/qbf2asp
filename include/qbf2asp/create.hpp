@@ -3,18 +3,19 @@
 
 #include <qbf2asp/global>
 
-#include <qbf2asp/IQDIMACSParserFactory.hpp>
-#include <qbf2asp/IQDIMACSParser.hpp>
-#include <qbf2asp/IQbfToHypergraphConverterFactory.hpp>
-#include <qbf2asp/IQbfToHypergraphConverter.hpp>
-#include <qbf2asp/IQbfInstanceFactory.hpp>
-#include <qbf2asp/IQbfInstance.hpp>
-#include <qbf2asp/IQbfClauseFactory.hpp>
-#include <qbf2asp/IQbfClause.hpp>
 #include <qbf2asp/IQbf2AspAlgorithmFactory.hpp>
 #include <qbf2asp/IQbf2AspAlgorithm.hpp>
 
-#include <htd/main.hpp>
+// tree decomposition-based conditional includes
+#ifdef ENABLE_DECOMPOSITION
+
+#  include <qbf2asp/IQbfToHypergraphConverterFactory.hpp>
+#  include <qbf2asp/IQbfToHypergraphConverter.hpp>
+
+#  include <htd/main.hpp>
+
+#endif // ENABLE_DECOMPOSITION
+
 
 namespace qbf2asp
 {
@@ -22,24 +23,18 @@ namespace qbf2asp
 	{
 	public:
 
-		static void set(IQDIMACSParserFactory *factory);
-		static void set(IQbfToHypergraphConverterFactory *factory);
-		static void set(IQbfInstanceFactory *factory);
-		static void set(IQbfClauseFactory *factory);
 		static void set(IQbf2AspAlgorithmFactory *factory);
-		static void set(htd::LibraryInstance *htdlib);
 
-		static IQDIMACSParser *parser();
-
-		static IQbfToHypergraphConverter *hypergraphConverter();
-
-		static IQbfInstance *instance();
-		
-		static IQbfClause *clause(const IQbfInstance &instance);
-		
 		static IQbf2AspAlgorithm *algorithm();
 
+// tree decomposition-based conditional methods
+#ifdef ENABLE_DECOMPOSITION
+		static void set(IQbfToHypergraphConverterFactory *factory);
+		static void set(htd::LibraryInstance *htdlib);
+
+		static IQbfToHypergraphConverter *hypergraphConverter();
 		static const htd::LibraryInstance &htdlib();
+#endif // ENABLE_DECOMPOSITION
 		
 	private:
 		create();
