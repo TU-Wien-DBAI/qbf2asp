@@ -5,19 +5,15 @@
 
 #include <memory>
 
-namespace qbf2asp
+namespace sharp
 {
-	using htd::IHypergraph;
-
-	using std::unique_ptr;
-
-	/*
-	IHypergraph *DecomposableQbfInstance::toHypergraph()
+	template<>
+	htd::IHypergraph *DecomposableInstance<logic::IQbfInstance>::toHypergraph()
+		const
 	{
-		unique_ptr<IQbfToHypergraphConverter> converter(
-				create::hypergraphConverter());
-		return converter->convert(content());
+		std::unique_ptr<qbf2asp::IQbfToHypergraphConverter> converter(
+				qbf2asp::create::hypergraphConverter());
+		return converter->convert(content_);
 	}
-	*/
 
-} // namespace qbf2asp
+} // namespace sharp

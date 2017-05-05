@@ -26,6 +26,7 @@ namespace qbf2asp
 	using std::size_t;
 	using std::vector;
 	using std::ostream;
+	using std::endl;
 
 	Qbf2DatalogTreeAlgorithm::Qbf2DatalogTreeAlgorithm() : out_(&std::cout) { }
 
@@ -65,7 +66,8 @@ namespace qbf2asp
 			const INodeTableMap &tables,
 			const IQbfInstance &instance) const
 	{
-		return nullptr;
+		*out_ << "vertex " << node << endl; 
+		return new Qbf2DatalogTable();
 	}
 
 } // namespace qbf2asp

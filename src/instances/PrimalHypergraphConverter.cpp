@@ -34,11 +34,12 @@ namespace qbf2asp
 		for(size_t vertex = 1;  vertex <= instance.variableCount(); ++vertex)
 			hypergraph->addVertex();
 
-		clause_t clause = instance.variableCount + 1;
+		clause_t clauseId = instance.variableCount() + 1;
 		for(const IQbfClause &clause : instance)
 		{
+			hypergraph->addVertex();
 			vector<vertex_t> edge;
-			edge.push_back(clause++);
+			edge.push_back(clauseId++);
 
 			for(variable_t variable : clause)
 				edge.push_back(variable);

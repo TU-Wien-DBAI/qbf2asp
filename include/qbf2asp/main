@@ -4,8 +4,8 @@
 // include files that are always available
 #include <qbf2asp/global>
 #include <qbf2asp/create.hpp>
-#include <qbf2asp/IQbf2AspAlgorithmFactory.hpp>
-#include <qbf2asp/IQbf2AspAlgorithm.hpp>
+#include <qbf2asp/IQbf2AspRewriterFactory.hpp>
+#include <qbf2asp/IQbf2AspRewriter.hpp>
 
 // check if we have tree decompositions enabled
 // and if yes, include relevant additional headers
@@ -16,4 +16,5 @@
 #  include <qbf2asp/IQbf2AspTreeRewriter.hpp>
 #  include <qbf2asp/IQbfToHypergraphConverterFactory.hpp>
 #  include <qbf2asp/IQbfToHypergraphConverter.hpp>
+#  include <qbf2asp/DecomposableQbfInstance.hpp>
 #endif // ENABLE_DECOMPOSITION

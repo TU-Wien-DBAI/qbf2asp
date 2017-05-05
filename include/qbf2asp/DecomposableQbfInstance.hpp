@@ -7,11 +7,16 @@
 
 #include <sharp/main>
 
+namespace sharp
+{
+	template class sharp::DecomposableInstance<logic::IQbfInstance>;
+
+} // namespace sharp
+
 namespace qbf2asp
 {
-	template<>
-	using DecomposableQbfInstance = 
-		sharp::DecomposableInstance<logic::IQbfInstance>;
+	typedef sharp::DecomposableInstance<logic::IQbfInstance>
+		DecomposableQbfInstance;
 
 } // namespace qbf2asp
 

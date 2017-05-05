@@ -44,8 +44,8 @@ libqbf2asp_la_include_HEADERS = \
 	\
 	include/qbf2asp/configuration.h \
 	\
-	include/qbf2asp/IQbf2AspAlgorithmFactory.hpp \
-	include/qbf2asp/IQbf2AspAlgorithm.hpp \
+	include/qbf2asp/IQbf2AspRewriterFactory.hpp \
+	include/qbf2asp/IQbf2AspRewriter.hpp \
 	\
 	include/qbf2asp/create.hpp
 

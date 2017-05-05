@@ -47,7 +47,7 @@ namespace qbf2asp
 				const logic::IQbfInstance &instance) const;
 
 	private:
-		const std::ostream * out_;
+		mutable std::ostream *out_;
 
 	}; // class Qbf2DatalogTreeAlgorithm
 

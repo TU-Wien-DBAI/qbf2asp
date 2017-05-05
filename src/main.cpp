@@ -1,6 +1,7 @@
 #include "preamble.h"
 
 #include <qbf2asp/main>
+#include <logic/parsers>
 #include <sharp/main>
 #include <htd/main.hpp>
 
@@ -33,13 +34,24 @@ namespace
 
 		enum Algorithm
 		{
-			DATALOG_VIA_DECOMPOSITION = 0
+			SATURATION = 0,
+			LARGE_RULE_ICLP2016,
+			LARGE_RULE_ARITHMETICS,
+#ifdef ENABLE_DECOMPOSITION
+			DATALOG_VIA_DECOMPOSITION,
+#endif // ENABLE_DECOMPOSITION
+			INVALID_MAXIMUM
 		};
 
 		Qbf2AspOptions(int argc, char *argv[])
 		{
 			int opt;
+			long selected;
+#ifdef ENABLE_DECOMPOSITION
 			while((opt = getopt(argc, argv, "vhbds:a:t:")) != -1)
+#else // !defined(ENABLE_DECOMPOSITION)
+			while((opt = getopt(argc, argv, "vhbs:a:")) != -1)
+#endif // ENABLE_DECOMPOSITION
 				switch(opt)
 				{
 				case 'v':
@@ -77,16 +89,11 @@ namespace
 
 				case 'a':
 					this->customAlgorithm = true;
-					switch(strtol(optarg, NULL, 10))
-					{
-					case 1:
-						this->algorithm = DATALOG_VIA_DECOMPOSITION;
-						break;
-
-					default:
+					selected = strtol(optarg, NULL, 10);
+					if(selected >= 0 && selected < INVALID_MAXIMUM)
+						this->algorithm = (Qbf2AspOptions::Algorithm)selected;
+					else
 						this->error = true;
-						break;
-					}
 					break;
 
 				default:
@@ -115,13 +122,13 @@ namespace
 		bool readFromFile = false;
 		char *fileToRead = nullptr;
 		bool customAlgorithm = false; // -c <config>, --config=<config>
-		Algorithm algorithm = DATALOG_VIA_DECOMPOSITION;
+		Algorithm algorithm = SATURATION;
 	};
 
 	void
 	printHelp(const char *programName)
 	{
-		std::cout
+		std::cerr
 			<< "Usage: " << programName << " [OPTION]... [FILE]"
 				<< std::endl
 			<< "Rewrite QBF formulas to answer set programs."
@@ -131,6 +138,7 @@ namespace
 				<< std::endl
 			<< "  -v\t  output version information and exit" << std::endl
 			<< "  -h\t  display this help message and exit" << std::endl
+#ifdef ENABLE_DECOMPOSITION
 			<< "  -d\t  perform decomposition and print treewidth" << std::endl
 			<< "  -t ALG  use ALG for decomposition, where ALG is one of:"
 				<< std::endl
@@ -138,13 +146,26 @@ namespace
 				<< std::endl
 			<< "\t    mf:  minimum fill edge count bucket elimination (default)"
 				<< std::endl
+#endif // ENABLE_DECOMPOSITION
 			<< "  -b\t  display timing information (use twice for CSV format)"
 				<< std::endl
 			<< "  -s NUM  set NUM as seed for the random number generator"
 				<< std::endl
 			<< "  -a NUM  set algorithm to NUM:" << std::endl
-			<< "\t    1: rewrite to Datalog via decomposition (default)"
+			<< "\t    " << Qbf2AspOptions::SATURATION
+				<< ": rewrite to ASP via saturation encoding (default)"
 				<< std::endl
+			<< "\t    " << Qbf2AspOptions::LARGE_RULE_ICLP2016
+				<< ": rewrite to ASP via ICLP'16 large rule encoding"
+				<< std::endl
+			<< "\t    " << Qbf2AspOptions::LARGE_RULE_ARITHMETICS
+				<< ": rewrite to ASP via large rule arithmetics encoding"
+				<< std::endl
+#ifdef ENABLE_DECOMPOSITION
+			<< "\t    " << Qbf2AspOptions::DATALOG_VIA_DECOMPOSITION
+				<< ": rewrite to Datalog via tree decomposition"
+				<< std::endl
+#endif // ENABLE_DECOMPOSITION
 			<< std::endl
 			<< "Exit status: " << std::endl
 			<< " " << EXIT_SUCCESS << "  if OK," << std::endl
@@ -161,7 +182,7 @@ namespace
 	void
 	printVersion()
 	{
-		std::cout
+		std::cerr
 			<< PACKAGE_STRING << std::endl
 			<< "Copyright (C) 2017 Michael Morak" << std::endl
 			<< "License GPLv3+: GNU GPL version 3 or later "
@@ -173,22 +194,22 @@ namespace
 			<< std::endl
 			<< "Written by Michael Morak." << std::endl;
 	}
-}
 
-void printBenchmarks(int signal)
-{
-	std::cout << std::endl;
-	sharp::Benchmark::printBenchmarks(std::cout, false);
+	void printBenchmarks(int signal)
+	{
+		std::cerr << std::endl;
+		sharp::Benchmark::printBenchmarks(std::cerr, false);
 
-	exit(signal);
-}
+		exit(signal);
+	}
 
-void printBenchmarksMachineReadable(int signal)
-{
-	std::cout << std::endl;
-	sharp::Benchmark::printBenchmarks(std::cout, true);
+	void printBenchmarksMachineReadable(int signal)
+	{
+		std::cerr << std::endl;
+		sharp::Benchmark::printBenchmarks(std::cerr, true);
 
-	exit(signal);
+		exit(signal);
+	}
 }
 
 int main(int argc, char *argv[])
@@ -239,6 +260,7 @@ int main(int argc, char *argv[])
 		std::srand(opts.seed);
 	}
 
+#ifdef ENABLE_DECOMPOSITION
 	if(opts.customTreeDecomposition)
 	{
 		std::unique_ptr<htd::LibraryInstance> htdlib(
@@ -262,6 +284,7 @@ int main(int argc, char *argv[])
 		htdlib->orderingAlgorithmFactory().setConstructionTemplate(ct);
 		qbf2asp::create::set(htdlib.release());
 	}
+#endif // ENABLE_DECOMPOSITION
 
 	//if(opts.customAlgorithm) qbf2asp::create::set(opts.configuration);
 
@@ -274,7 +297,7 @@ int main(int argc, char *argv[])
 
 		if(inputFileStream.fail() || !inputFileStream.is_open())
 		{
-			std::cout
+			std::cerr
 				<< "Failed to read from file '" << opts.fileToRead << "'."
 				<< std::endl;
 
@@ -282,81 +305,66 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	std::cout << "Parsing..." << std::endl;
-	std::unique_ptr<qbf2asp::IQDIMACSParser> parser(qbf2asp::create::parser());
-	std::unique_ptr<qbf2asp::IQbfInstance> instance(
-		parser->parse(inputStream));
+	std::cerr << "Parsing..." << std::endl;
+	std::unique_ptr<logic::IQDIMACSParser> parser(
+			logic::parser::qdimacsParser());
+	std::unique_ptr<logic::IQbfInstance> instance(
+			parser->parse(inputStream));
 	parser.reset();
 	sharp::Benchmark::registerTimestamp("parsing time");
 
 	if(!instance.get())
 		exit(EXIT_PARSING_ERROR);
 
-	std::cout << "Initializing rewriter..." << std::endl;
-	std::unique_ptr<qbf2asp::IQbf2AspAlgorithm> algorithm(
-			qbf2asp::create::algorithm());
+	std::cerr << "Initializing rewriter..." << std::endl;
+	std::unique_ptr<qbf2asp::IQbf2AspRewriter> rewriter(
+			qbf2asp::create::rewriter());
 
+
+#ifdef ENABLE_DECOMPOSITION
 	// check to see if we have a tree decomposition algorithm
-	if(!opts.customAlgorithm
-			|| opts.algorithm == Qbf2AspOptions::DATALOG_VIA_DECOMPOSITION)
+	if(opts.algorithm == Qbf2AspOptions::DATALOG_VIA_DECOMPOSITION)
 	{
-		std::unique_ptr<qbf2asp::IQbf2AspTreeAlgorithm> treeAlgorithm(
-				static_cast<qbf2asp::IQbf2AspTreeAlgorithm *>(
-					algorithm.release()));
+		qbf2asp::IQbf2AspTreeRewriter &treeRewriter(
+				static_cast<qbf2asp::IQbf2AspTreeRewriter &>(*rewriter.get()));
 
-		if(opts.decompositionOnly)
+		std::cerr << "Decomposing..." << std::endl;
+
+		qbf2asp::DecomposableQbfInstance decomposableInstance(*instance);
+		std::unique_ptr<htd::ITreeDecomposition> decomposition(
+				treeRewriter.decompose(decomposableInstance));
+
+		std::cerr << "TREEWIDTH: "
+			<< decomposition->maximumBagSize() - 1
+			<< std::endl;
+
+		if(!opts.decompositionOnly)
 		{
-			std::cout << "Decomposing..." << std::endl;
-			std::cout << "TREEWIDTH: "
-				<< treeAlgorithm->decompose(*instance)
-				<< std::endl;
+			std::cerr << "Rewriting... " << std::flush;
+			sharp::ISolution *solution = treeRewriter.solve(
+					decomposableInstance,
+					*decomposition);
+			std::cerr << "done." << std:: endl;
+
+			if(solution) delete solution;
 		}
-		else
-		{
-			// TODO
-		}
 	}
-	else // no tree decomposition-based algorithm
+	else // non-tree-decomposition-based algorithm
 	{
-		// NO SUCH ALGORITHM IMPLEMENTED
+#endif
+
+		std::cerr << "Rewriting... " << std::flush;
+		rewriter->rewrite(*instance);
+		std::cerr << "done." << std::endl;
+		
+#ifdef ENABLE_DECOMPOSITION
 	}
-
-	/*std::cout << "Initializing rewriter..." << std::endl;
-	std::unique_ptr<htd::ITreeDecompositionAlgorithm> tdAlgorithm(
-			htd::TreeDecompositionAlgorithmFactory::instance()
-			.getTreeDecompositionAlgorithm());
-	qbf2asp::Qbf2AspAlgorithm algorithm;
-	std::unique_ptr<qbf2asp::IQbf2AspCountingSolutionExtractor> extractor(
-			qbf2asp::create::countingSolutionExtractor());
-	std::unique_ptr<sharp::ITreeSolver> solver(
-			sharp::create::treeSolver(*tdAlgorithm, algorithm, *extractor));
-
-	std::cout << "Decomposing..." << std::endl;
-	std::unique_ptr<htd::ITreeDecomposition> td(solver->decompose(*instance));
-	std::cout << "TREEWIDTH: " << td->maximumBagSize() - 1 << std::endl;
-
-	if(!opts.decompositionOnly)
-	{
-		std::cout << "Solving... " << std::flush;
-		std::unique_ptr<qbf2asp::IQbf2AspCountingSolution> solution(
-				static_cast<qbf2asp::IQbf2AspCountingSolution *>(
-					solver->solve(*instance, *td)));
-		std::cout << "done." << std::endl;
-
-		if(solution->optimalWeight() != (size_t)-1)
-			std::cout << "OPTIMAL WEIGHT: " << solution->optimalWeight()
-				<< std::endl;
-		else
-			std::cout << "OPTIMAL WEIGHT: N/A" << std::endl;
-
-		std::cout << "SOLUTION COUNT: " << solution->count() << std::endl;
-	}
-	*/
+#endif
 
 	if(opts.printBenchmarks)
 	{
-		std::cout << std::endl;
-		sharp::Benchmark::printBenchmarks(std::cout, opts.printMachineReadable);
+		std::cerr << std::endl;
+		sharp::Benchmark::printBenchmarks(std::cerr, opts.printMachineReadable);
 	}
 
 	return EXIT_SUCCESS;
