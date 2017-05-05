@@ -12,6 +12,7 @@ AM_CTAGSFLAGS = --extra=+f
 # tell automake to pass certain CPPFLAGS to the compiler
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
+	-I$(top_builddir)/include \
 	-pedantic-errors \
 	-Wpedantic \
 	-Wall \
