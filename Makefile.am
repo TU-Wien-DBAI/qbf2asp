@@ -8,12 +8,6 @@ ACLOCAL_AMFLAGS = -I m4 ${ACLOCAL_FLAGS}
 # tell automake to pass certain flags to 'ctags'
 AM_CTAGSFLAGS = --extra=+f
 
-# tell automake to pass certain flags to 'lex'
-AM_LFLAGS = -olex.yy.c
-
-# tell automake to pass certain flags to 'yacc'
-AM_YFLAGS = --defines=y.tab.h -oy.tab.c
-
 #FIXME: don't assume GCC, do feature detection in configure.ac
 # tell automake to pass certain CPPFLAGS to the compiler
 AM_CPPFLAGS = \
@@ -43,26 +37,6 @@ lib_LTLIBRARIES = libqbf2asp.la
 # libqbf2asp.la build options #
 #----------------------------#
 
-# list of generated header files
-LIBQBF2ASP_GENERATED_HEADER = \
-	src/parsers/QDIMACSBisonParser.hh \
-	stack.hh \
-	position.hh \
-	location.hh
-
-# list of generated source files
-LIBQBF2ASP_GENERATED_SOURCE = \
-	src/parsers/QDIMACSBisonParser.cc \
-	src/parsers/QDIMACSLexer.cc
-
-# add those to the automake variable for generated files
-BUILT_SOURCES += $(LIBQBF2ASP_GENERATED_SOURCE)
-
-# tell automake to clean up the generated headers on 'make clean'
-# and to distribute the headers on 'make dist'
-CLEANFILES += $(LIBQBF2ASP_GENERATED_HEADER)
-EXTRA_DIST += $(LIBQBF2ASP_GENERATED_HEADER)
-
 # list the names of the public header files of the libqbf2asp.la library
 libqbf2asp_la_include_HEADERS = \
 	include/qbf2asp/main \
@@ -72,25 +46,17 @@ libqbf2asp_la_include_HEADERS = \
 	include/qbf2asp/IQbf2AspAlgorithm.hpp \
 	include/qbf2asp/IQbf2AspTreeAlgorithmFactory.hpp \
 	include/qbf2asp/IQbf2AspTreeAlgorithm.hpp \
-	include/qbf2asp/IQbfClauseFactory.hpp \
-	include/qbf2asp/IQbfClause.hpp \
-	include/qbf2asp/IQbfInstanceFactory.hpp \
-	include/qbf2asp/IQbfInstance.hpp \
 	include/qbf2asp/IQbfToHypergraphConverterFactory.hpp \
 	include/qbf2asp/IQbfToHypergraphConverter.hpp \
-	include/qbf2asp/IQDIMACSParserFactory.hpp \
-	include/qbf2asp/IQDIMACSParser.hpp \
 	\
-	include/qbf2asp/create.hpp \
-	\
-	include/qbf2asp/Variable.hpp \
-	include/qbf2asp/Clause.hpp 
+	include/qbf2asp/create.hpp
 
 # list all source code files for the libqbf2asp.la library
 # don't need to list the generated .cc files from bison and flex
 # since automake already knows about them, and adds them automatically
 libqbf2asp_la_SOURCES = \
 	src/assembly.cpp \
+	src/preamble.h \
 	\
 	src/create.cpp \
 	\
@@ -99,19 +65,8 @@ libqbf2asp_la_SOURCES = \
 	src/algorithms/Qbf2DatalogTable.cpp \
 	src/algorithms/Qbf2DatalogTable.hpp \
 	\
-	src/instances/QbfInstance.cpp \
-	src/instances/QbfInstance.hpp \
-	src/instances/QbfClause.cpp \
-	src/instances/QbfClause.hpp \
 	src/instances/QbfToPrimalHypergraphConverter.cpp \
 	src/instances/QbfToPrimalHypergraphConverter.hpp \
-	\
-	src/parsers/QDIMACSBisonParser.hpp \
-	src/parsers/QDIMACSBisonParser.yy \
-	src/parsers/QDIMACSLexer.hpp \
-	src/parsers/QDIMACSLexer.ll \
-	src/parsers/QDIMACSParser.cpp \
-	src/parsers/QDIMACSParser.hpp \
 	\
 	src/util/errorhandling.cpp \
 	src/util/errorhandling.hpp \

@@ -51,6 +51,25 @@ CPPFLAGS+=$CXXFLAGS
 # define optional features (--enable-FEATURE)
 #############################################
 
+# add the option to enable the tree decomposition feature,
+# also pass a corresponding conditional variable to automake,
+# and generate our corresponding conditional header from the template
+AC_MSG_CHECKING([whether to build with tree decomposition support])
+AC_ARG_ENABLE([decomposition],
+	    [AS_HELP_STRING([--enable-decomposition],
+						[enable support for tree decomposition])],
+	    [case "$enableval" in			
+	       yes|no) ;;				
+		   *)
+		   		AC_MSG_ERROR([bad value ${enableval} for decomposition option])
+		   		;;
+	     esac
+       	     enable_decomposition=$enableval],
+	    [enable_decomposition=no])
+AC_MSG_RESULT([$enable_decomposition])
+AM_CONDITIONAL([ENABLE_DECOMPOSITION], [test x$enable_decomposition = xyes])
+AC_HEADER([include/qbf2asp/ac_enable_decomposition.h])
+
 # define optional packages to use (--with-PACKAGE)
 ##################################################
 
@@ -64,17 +83,27 @@ AC_DEFINE_UNQUOTED([QBF2ASP_EXPORTS], [1], [Define to 1 if the library is being
 # check that libraries are present on the system
 ################################################
 
-# check for htd library
-#TODO: check for "none required" output of AC_SEARCH_LIBS
-AC_SEARCH_LIBS([htd_version], [htd],
-	        [HTD_LIBS=$ac_cv_search_htd_version],
-	        [AC_MSG_FAILURE([libhtd not found])])
+# check for logicparsers library
+AC_SEARCH_LIBS([logicparsers_version], [logicparsers],
+			   [LOGICPARSERS_LIBS=$ac_cv_search_logicparsers_version],
+			   [AC_MSG_FAILURE([liblogicparsers not found])])
 
-# check for htd library
-#TODO: check for "none required" output of AC_SEARCH_LIBS
-AC_SEARCH_LIBS([sharp_version], [sharp],
-	        [SHARP_LIBS=$ac_cv_search_sharp_version],
-	        [AC_MSG_FAILURE([libsharp not found])])
+
+# check for decomposition libraries if enabled
+AS_IF([test "x$enable_decomposition" = xyes],
+	  [
+		# check for htd library
+		#TODO: check for "none required" output of AC_SEARCH_LIBS
+		AC_SEARCH_LIBS([htd_version], [htd],
+					[HTD_LIBS=$ac_cv_search_htd_version],
+					[AC_MSG_FAILURE([libhtd not found])])
+
+		# check for htd library
+		#TODO: check for "none required" output of AC_SEARCH_LIBS
+		AC_SEARCH_LIBS([sharp_version], [sharp],
+					[SHARP_LIBS=$ac_cv_search_sharp_version],
+					[AC_MSG_FAILURE([libsharp not found])])
+	  ])
 
 # check for pthread (needed for googletest)
 ACX_PTHREAD([], [AC_MSG_FAILURE([POSIX thread support not found])])
@@ -86,13 +115,25 @@ ACX_PTHREAD([], [AC_MSG_FAILURE([POSIX thread support not found])])
 #############################
 AC_LANG_PUSH([C++])
 
-# check for htd library header
-AC_CHECK_HEADER([htd/main.hpp], [],
-		[AC_MSG_FAILURE([libhtd library header not found])])
+# check for logichelpers library header
+AC_CHECK_HEADER([logic/helpers], [],	
+				[AC_MSG_FAILURE([liblogichelpers library header not found])])
 
-# check for htd library header
-AC_CHECK_HEADER([sharp/main], [],
-		[AC_MSG_FAILURE([libsharp library header not found])])
+# check for logicparsers library header
+AC_CHECK_HEADER([logic/parsers], [],	
+				[AC_MSG_FAILURE([liblogicparsers library header not found])])
+
+# check for decomposition libraries' headers if enabled
+AS_IF([test "x$enable_decomposition" = xyes],
+	  [
+		# check for htd library header
+		AC_CHECK_HEADER([htd/main.hpp], [],
+				[AC_MSG_FAILURE([libhtd library header not found])])
+
+		# check for htd library header
+		AC_CHECK_HEADER([sharp/main], [],
+				[AC_MSG_FAILURE([libsharp library header not found])])
+	  ])
 
 AC_LANG_POP([C++])
 
