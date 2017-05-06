@@ -175,7 +175,7 @@ namespace
 	{
 		std::cerr
 			<< PACKAGE_STRING << std::endl
-			<< "Copyright (C) 2017 Michael Morak" << std::endl
+			<< "Copyright (C) 2017 Jannik Vierling" << std::endl
 			<< "License GPLv3+: GNU GPL version 3 or later "
 				<< "<http://gnu.org/licenses/gpl.html>." << std::endl
 			<< "This is free software: you are free to change and "
