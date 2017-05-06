@@ -32,21 +32,10 @@ namespace
 			MAXIMUM_CARDINALITY_SEARCH
 		};
 
-		enum Algorithm
-		{
-			SATURATION = 0,
-			LARGE_RULE_ICLP2016,
-			LARGE_RULE_ARITHMETICS,
-#ifdef ENABLE_DECOMPOSITION
-			DATALOG_VIA_DECOMPOSITION,
-#endif // ENABLE_DECOMPOSITION
-			INVALID_MAXIMUM
-		};
-
 		Qbf2AspOptions(int argc, char *argv[])
 		{
 			int opt;
-			long selected;
+			long alg;
 #ifdef ENABLE_DECOMPOSITION
 			while((opt = getopt(argc, argv, "vhbds:a:t:")) != -1)
 #else // !defined(ENABLE_DECOMPOSITION)
@@ -62,6 +51,7 @@ namespace
 					this->displayHelp = true;
 					break;
 
+#ifdef ENABLE_DECOMPOSITION
 				case 'd':
 					this->decompositionOnly = true;
 					break;
@@ -75,6 +65,7 @@ namespace
 					else
 						this->error = true;
 					break;
+#endif // ENABLE_DECOMPOSITION
 
 				case 'b':
 					if(this->printBenchmarks)
@@ -88,10 +79,10 @@ namespace
 					break;
 
 				case 'a':
-					this->customAlgorithm = true;
-					selected = strtol(optarg, NULL, 10);
-					if(selected >= 0 && selected < INVALID_MAXIMUM)
-						this->algorithm = (Qbf2AspOptions::Algorithm)selected;
+					this->customRewriter = true;
+					alg = strtol(optarg, NULL, 10);
+					if(alg >= 0 && alg < qbf2asp::create::INVALID_MAXIMUM)
+						this->rewriter = (qbf2asp::create::Rewriter)alg;
 					else
 						this->error = true;
 					break;
@@ -121,8 +112,8 @@ namespace
 		unsigned seed = 0;
 		bool readFromFile = false;
 		char *fileToRead = nullptr;
-		bool customAlgorithm = false; // -c <config>, --config=<config>
-		Algorithm algorithm = SATURATION;
+		bool customRewriter = false; // -c <config>, --config=<config>
+		qbf2asp::create::Rewriter rewriter = qbf2asp::create::SATURATION;
 	};
 
 	void
@@ -151,18 +142,18 @@ namespace
 				<< std::endl
 			<< "  -s NUM  set NUM as seed for the random number generator"
 				<< std::endl
-			<< "  -a NUM  set algorithm to NUM:" << std::endl
-			<< "\t    " << Qbf2AspOptions::SATURATION
+			<< "  -a NUM  set rewriter to NUM:" << std::endl
+			<< "\t    " << qbf2asp::create::SATURATION
 				<< ": rewrite to ASP via saturation encoding (default)"
 				<< std::endl
-			<< "\t    " << Qbf2AspOptions::LARGE_RULE_ICLP2016
+			<< "\t    " << qbf2asp::create::LARGE_RULE_ICLP2016
 				<< ": rewrite to ASP via ICLP'16 large rule encoding"
 				<< std::endl
-			<< "\t    " << Qbf2AspOptions::LARGE_RULE_ARITHMETICS
+			<< "\t    " << qbf2asp::create::LARGE_RULE_ARITHMETICS
 				<< ": rewrite to ASP via large rule arithmetics encoding"
 				<< std::endl
 #ifdef ENABLE_DECOMPOSITION
-			<< "\t    " << Qbf2AspOptions::DATALOG_VIA_DECOMPOSITION
+			<< "\t    " << qbf2asp::create::DATALOG_VIA_DECOMPOSITION
 				<< ": rewrite to Datalog via tree decomposition"
 				<< std::endl
 #endif // ENABLE_DECOMPOSITION
@@ -286,8 +277,6 @@ int main(int argc, char *argv[])
 	}
 #endif // ENABLE_DECOMPOSITION
 
-	//if(opts.customAlgorithm) qbf2asp::create::set(opts.configuration);
-
 	std::ifstream inputFileStream;
 	std::istream *inputStream = &std::cin;
 	if(opts.readFromFile)
@@ -318,12 +307,11 @@ int main(int argc, char *argv[])
 
 	std::cerr << "Initializing rewriter..." << std::endl;
 	std::unique_ptr<qbf2asp::IQbf2AspRewriter> rewriter(
-			qbf2asp::create::rewriter());
-
+			qbf2asp::create::rewriter(opts.rewriter));
 
 #ifdef ENABLE_DECOMPOSITION
-	// check to see if we have a tree decomposition algorithm
-	if(opts.algorithm == Qbf2AspOptions::DATALOG_VIA_DECOMPOSITION)
+	// check to see if we have a tree decomposition rewriter
+	if(opts.rewriter == qbf2asp::create::DATALOG_VIA_DECOMPOSITION)
 	{
 		qbf2asp::IQbf2AspTreeRewriter &treeRewriter(
 				static_cast<qbf2asp::IQbf2AspTreeRewriter &>(*rewriter.get()));
@@ -349,7 +337,7 @@ int main(int argc, char *argv[])
 			if(solution) delete solution;
 		}
 	}
-	else // non-tree-decomposition-based algorithm
+	else // non-tree-decomposition-based rewriter
 	{
 #endif
 

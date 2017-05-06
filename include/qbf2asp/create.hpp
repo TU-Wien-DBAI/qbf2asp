@@ -26,10 +26,22 @@ namespace qbf2asp
 	class QBF2ASP_API create
 	{
 	public:
+		enum Rewriter
+		{
+			SATURATION = 0,
+			LARGE_RULE_ICLP2016,
+			LARGE_RULE_ARITHMETICS,
+#ifdef ENABLE_DECOMPOSITION
+			DATALOG_VIA_DECOMPOSITION,
+#endif // ENABLE_DECOMPOSITION
+			INVALID_MAXIMUM
+		};
 
+	public:
 		static void set(IQbf2AspRewriterFactory *factory);
 
 		static IQbf2AspRewriter *rewriter();
+		static IQbf2AspRewriter *rewriter(Rewriter type);
 
 // tree decomposition-based conditional methods
 #ifdef ENABLE_DECOMPOSITION

@@ -69,6 +69,13 @@ libqbf2asp_la_SOURCES = \
 	\
 	src/create.cpp \
 	\
+	src/algorithms/LargeRuleArithmeticsRewriter.cpp \
+	src/algorithms/LargeRuleArithmeticsRewriter.hpp \
+	src/algorithms/LargeRuleIclp2016Rewriter.cpp \
+	src/algorithms/LargeRuleIclp2016Rewriter.hpp \
+	src/algorithms/SaturationRewriter.cpp \
+	src/algorithms/SaturationRewriter.hpp \
+	\
 	src/util/errorhandling.cpp \
 	src/util/errorhandling.hpp \
 	src/util/debug.cpp \

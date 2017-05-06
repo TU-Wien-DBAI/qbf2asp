@@ -1,6 +1,10 @@
 #include "preamble.h"
 #include <qbf2asp/create.hpp>
 
+#include "algorithms/SaturationRewriter.hpp"
+#include "algorithms/LargeRuleArithmeticsRewriter.hpp"
+#include "algorithms/LargeRuleIclp2016Rewriter.hpp"
+
 // tree decomposition-based conditional includes
 #ifdef ENABLE_DECOMPOSITION
 
@@ -16,6 +20,7 @@
 namespace qbf2asp
 {
 	using std::unique_ptr;
+	using std::invalid_argument;
 
 	namespace
 	{
@@ -29,27 +34,38 @@ namespace qbf2asp
 		rewriterFactory_ = factory;
 	}
 
-// conditional code if tree decompositions are disabled
-#ifndef ENABLE_DECOMPOSITION
-
 	IQbf2AspRewriter *create::rewriter()
 	{
 		if(rewriterFactory_)
 			return rewriterFactory_->create();
 
-		return nullptr;
+		return rewriter(SATURATION);
 	}
 
-#else // conditional code if tree decompositions are enabled
-
-	IQbf2AspRewriter *create::rewriter()
+	IQbf2AspRewriter *create::rewriter(Rewriter type)
 	{
-		if(rewriterFactory_)
-			return rewriterFactory_->create();
+		switch(type)
+		{
+		case SATURATION:
+			return new SaturationRewriter();
 
-		return new Qbf2DatalogTreeRewriter();
+		case LARGE_RULE_ICLP2016:
+			return new LargeRuleIclp2016Rewriter();
+
+		case LARGE_RULE_ARITHMETICS:
+			return new LargeRuleArithmeticsRewriter();
+
+#ifdef ENABLE_DECOMPOSITION
+		case DATALOG_VIA_DECOMPOSITION:
+			return new Qbf2DatalogTreeRewriter();
+#endif // ENABLE_DECOMPOSITION
+
+		default:
+			throw invalid_argument("Paramter 'type' is invalid.");
+		}
 	}
 
+#ifdef ENABLE_DECOMPOSITION 
 	using htd::LibraryInstance;
 
 	namespace
