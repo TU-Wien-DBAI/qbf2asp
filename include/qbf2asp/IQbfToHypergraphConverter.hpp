@@ -18,7 +18,7 @@ namespace qbf2asp
 	public:
 		virtual ~IQbfToHypergraphConverter() = 0;
 
-		virtual htd::IHypergraph *convert(
+		virtual htd::IMultiHypergraph *convert(
 				const logic::IQbfInstance &instance) const = 0;
 
 	}; // class IQbfToHypergraphConverter

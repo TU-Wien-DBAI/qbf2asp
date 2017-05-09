@@ -3,15 +3,15 @@
 
 #include <qbf2asp/global>
 
+#include "Qbf2DatalogTable.hpp"
+
 #include <qbf2asp/IQbf2AspTreeAlgorithm.hpp>
 
 #include <logic/parsers>
-
 #include <sharp/main>
-
 #include <htd/main.hpp>
 
-#include <memory>
+#include <list>
 
 namespace qbf2asp
 {
@@ -45,6 +45,83 @@ namespace qbf2asp
 				const htd::ITreeDecomposition &decomposition,
 				const sharp::INodeTableMap &tables,
 				const logic::IQbfInstance &instance) const;
+
+		Qbf2DatalogTable *createTable(
+				htd::vertex_t node,
+				const htd::ITreeDecomposition &decomposition,
+				const sharp::INodeTableMap &tables,
+				const logic::IQbfInstance &instance) const;
+
+		Qbf2DatalogTable *createLeafTable(
+				htd::vertex_t node,
+				const htd::ITreeDecomposition &decomposition,
+				const logic::IQbfInstance &instance) const;
+
+		Qbf2DatalogTable *createNodeTable(
+				htd::vertex_t node,
+				const htd::ITreeDecomposition &decomposition,
+				const sharp::INodeTableMap &tables,
+				const logic::IQbfInstance &instance) const;
+
+		const Qbf2DatalogTable &table(
+				htd::vertex_t node,
+				const sharp::INodeTableMap &tables) const;
+
+		std::unordered_set<logic::variable_t> variablesToForget(
+				htd::vertex_t node,
+				const htd::ITreeDecomposition &decomposition) const;
+
+		std::unordered_set<logic::clause_t> clauses(
+				htd::vertex_t node,
+				const htd::ITreeDecomposition &decomposition,
+				const logic::IQbfInstance &instance) const;
+
+	private:
+		void processChildTables(
+				htd::vertex_t node,
+				const logic::IQbfInstance &instance,
+				const std::unordered_set<logic::variable_t> &current,
+				const sharp::INodeTableMap &tables,
+				short &currentQuantifier,
+				std::unordered_set<logic::variable_t> &remaining,
+				std::unordered_set<logic::variable_t> &forgotten,
+				htd::ConstIterator<htd::vertex_t> begin,
+				htd::ConstIterator<htd::vertex_t> end) const;
+
+		void printMappingRule(
+				htd::vertex_t node,
+				const std::unordered_set<logic::variable_t> &current,
+				const std::unordered_set<logic::variable_t> &forgotten,
+				htd::vertex_t child,
+				const std::unordered_set<logic::variable_t> &ccurrent,
+				const std::unordered_set<logic::variable_t> &cforgotten) const;
+
+		void printClauseRule(
+				const logic::IQbfInstance &instance,
+				htd::vertex_t node,
+				const std::list<logic::variable_t> &order,
+				logic::clause_t clause) const;
+
+		void printUniversalElimination(
+				htd::vertex_t node,
+				const std::unordered_set<logic::variable_t> &projectOut,
+				std::list<logic::variable_t> &order,
+				long &step) const;
+
+		void printExistentialElimination(
+				htd::vertex_t node,
+				const std::unordered_set<logic::variable_t> &projectOut,
+				std::list<logic::variable_t> &order,
+				long &step) const;
+
+		void printOutputRule(
+				htd::vertex_t node,
+				long step,
+				const std::unordered_set<logic::variable_t> &current,
+				const std::unordered_set<logic::variable_t> &forgotten,
+				const std::list<logic::variable_t> &order) const;
+
+		void printRootRules(htd::vertex_t node) const;
 
 	private:
 		mutable std::ostream *out_;

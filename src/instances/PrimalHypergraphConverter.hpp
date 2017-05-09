@@ -14,7 +14,7 @@ namespace qbf2asp
 		PrimalHypergraphConverter();
 		virtual ~PrimalHypergraphConverter() override;
 
-		virtual htd::IHypergraph *convert(
+		virtual htd::IMultiHypergraph *convert(
 				const logic::IQbfInstance &instance) const override;
 
 	}; // class PrimalHypergraphConverter
