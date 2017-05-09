@@ -6,7 +6,7 @@
 #ifdef ENABLE_DECOMPOSITION
 #  include <sharp/main>
 #  include <htd/main.hpp>
-#endif
+#endif // ENABLE_DECOMPOSITION
 
 #include <memory>
 #include <fstream>
