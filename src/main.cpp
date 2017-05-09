@@ -2,8 +2,11 @@
 
 #include <qbf2asp/main>
 #include <logic/parsers>
-#include <sharp/main>
-#include <htd/main.hpp>
+
+#ifdef ENABLE_DECOMPOSITION
+#  include <sharp/main>
+#  include <htd/main.hpp>
+#endif
 
 #include <memory>
 #include <fstream>

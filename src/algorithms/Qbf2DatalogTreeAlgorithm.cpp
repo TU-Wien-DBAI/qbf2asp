@@ -500,7 +500,8 @@ namespace qbf2asp
 			sep = ", ";
 		}
 
-		out << ") :- p_" << node << "_" << step << "(";
+		string postfix = step ? to_string(step) : "in";
+		out << ") :- p_" << node << "_" << postfix << "(";
 
 		sep = "";
 		for(variable_t var : order)
