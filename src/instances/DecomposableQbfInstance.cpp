@@ -8,8 +8,8 @@
 namespace sharp
 {
 	template<>
-	htd::IHypergraph *DecomposableInstance<logic::IQbfInstance>::toHypergraph()
-		const
+	htd::IMultiHypergraph *
+	DecomposableInstance<logic::IQbfInstance>::toHypergraph() const
 	{
 		std::unique_ptr<qbf2asp::IQbfToHypergraphConverter> converter(
 				qbf2asp::create::hypergraphConverter());

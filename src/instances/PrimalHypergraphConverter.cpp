@@ -14,41 +14,41 @@ namespace qbf2asp
 	using logic::variable_t;
 	using logic::clause_t;
 
+	using htd::id_t;
 	using htd::vertex_t;
-	using htd::IHypergraph;
-	using htd::IMutableHypergraph;
-	using htd::HypergraphFactory;
+	using htd::IMultiHypergraph;
+	using htd::IMutableMultiHypergraph;
 
 	using std::vector;
+	using std::unique_ptr;
 
 	PrimalHypergraphConverter::PrimalHypergraphConverter() { }
 
 	PrimalHypergraphConverter::~PrimalHypergraphConverter() { }
 
-	IHypergraph *PrimalHypergraphConverter::convert(
+	IMultiHypergraph *PrimalHypergraphConverter::convert(
 			const IQbfInstance &instance) const
 	{
-		IMutableHypergraph *hypergraph = 
-			create::htdlib().hypergraphFactory().createInstance();
+		unique_ptr<IMutableMultiHypergraph> hypergraph(
+			create::htdlib().multiHypergraphFactory().createInstance());
 
-		for(size_t vertex = 1;  vertex <= instance.variableCount(); ++vertex)
+		for(vertex_t vertex = 1;  vertex <= instance.variableCount(); ++vertex)
 			hypergraph->addVertex();
 
-		clause_t clauseId = instance.variableCount() + 1;
 		for(const IQbfClause &clause : instance)
 		{
-			hypergraph->addVertex();
 			vector<vertex_t> edge;
-			edge.push_back(clauseId++);
 
 			for(variable_t variable : clause)
 				edge.push_back(variable);
 
-			DBG("edge: "); DBG_COLL(edge); DBG(std::endl);
+			DBG("edge: "); DBG_COLL(edge); DBG(" = "); 
 
-			hypergraph->addEdge(edge);
+			htd::id_t edgeId = hypergraph->addEdge(edge);
+
+			DBG(edgeId + instance.variableCount()); DBG(std::endl);
 		}
 
-		return hypergraph;
+		return hypergraph.release();
 	}
 } // namespace qbf2asp

@@ -21,12 +21,12 @@ namespace qbf2asp
 		Qbf2DatalogTable &operator=(Qbf2DatalogTable &) { return *this; }
 
 	public:
-		Qbf2DatalogTable();
 		virtual ~Qbf2DatalogTable() override;
 
-		std::vector<logic::variable_t> current;
-		short outermostQuantifierLevel;
-		std::unordered_set<logic::variable_t> remainingOutermost;
+		std::unordered_set<logic::variable_t> current;
+		short currentQuantifier;
+		std::unordered_set<logic::variable_t> remaining;
+		std::unordered_set<logic::variable_t> forgotten;
 
 	}; // class Qbf2DatalogTable
 

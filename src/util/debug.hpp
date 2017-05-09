@@ -3,6 +3,8 @@
 
 #ifdef DEBUG
 
+#include <qbf2asp/global>
+
 #include <iostream>
 
 namespace qbf2asp
@@ -10,7 +12,7 @@ namespace qbf2asp
 	class Debug
 	{
 	public:
-		static std::ostream &stream;
+		static QBF2ASP_API std::ostream *stream;
 
 		template<typename T>
 		static void printColl(std::ostream &out, const T &coll)
@@ -38,23 +40,23 @@ namespace qbf2asp
 			out << "]";
 		}
 
-			private:
+	private:
 		Debug();
 	};
 
 } // namespace qbf2asp
 
 #define DBG_SET(x) \
-	Debug::stream = (x)
+	qbf2asp::Debug::stream = (x)
 
 #define DBG(x) \
-	Debug::stream << (x)
+	*qbf2asp::Debug::stream << (x)
 
 #define DBG_COLL(x) \
-	Debug::printColl(Debug::stream, (x))
+	qbf2asp::Debug::printColl(*qbf2asp::Debug::stream, (x))
 
 #define DBG_MAP(x) \
-	Debug::printMap(Debug::stream, (x))
+	qbf2asp::Debug::printMap(*qbf2asp::Debug::stream, (x))
 
 #else // !DEBUG
 

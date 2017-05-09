@@ -4,5 +4,5 @@
 #include "debug.hpp"
 
 #ifdef DEBUG
-std::ostream &qbf2asp::Debug::stream = std::cout;
+std::ostream *qbf2asp::Debug::stream = &std::cerr;
 #endif // DEBUG

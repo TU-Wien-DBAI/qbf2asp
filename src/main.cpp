@@ -205,6 +205,7 @@ namespace
 
 int main(int argc, char *argv[])
 {
+	DBG_SET(&std::cerr); // set up stream for debug printouts
 	logic::Benchmark::registerTimestamp("program start");
 
 	const Qbf2AspOptions opts(argc, argv);
@@ -328,7 +329,7 @@ int main(int argc, char *argv[])
 
 		if(!opts.decompositionOnly)
 		{
-			std::cerr << "Rewriting... " << std::flush;
+			std::cerr << "Rewriting... " << std::flush; DBG(std::endl);
 			sharp::ISolution *solution = treeRewriter.solve(
 					decomposableInstance,
 					*decomposition);

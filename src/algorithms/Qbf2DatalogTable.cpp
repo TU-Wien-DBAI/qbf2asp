@@ -3,8 +3,6 @@
 
 namespace qbf2asp
 {
-	Qbf2DatalogTable::Qbf2DatalogTable() { }
-
 	Qbf2DatalogTable::~Qbf2DatalogTable() { }
 
 } // namespace qbf2asp
