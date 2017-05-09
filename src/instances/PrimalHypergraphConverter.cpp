@@ -44,7 +44,10 @@ namespace qbf2asp
 
 			DBG("edge: "); DBG_COLL(edge); DBG(" = "); 
 
-			htd::id_t edgeId = hypergraph->addEdge(edge);
+#ifdef DEBUG
+			htd::id_t edgeId =
+#endif // DEBUG
+			hypergraph->addEdge(edge);
 
 			DBG(edgeId + instance.variableCount()); DBG(std::endl);
 		}
