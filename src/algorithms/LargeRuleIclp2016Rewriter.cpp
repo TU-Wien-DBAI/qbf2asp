@@ -23,11 +23,13 @@ namespace qbf2asp
   {
     rewrite(instance, std::cout);
   }
+
   
   std::unordered_set<logic::variable_t> e_0_variables(const IQbfInstance & instance);
   std::unordered_set<logic::variable_t> a_1_variables(const IQbfInstance & instance);
   std::unordered_set<logic::variable_t> e_2_variables(const IQbfInstance & instance);
   const unordered_set<variable_t> x_variables(const IQbfInstance & instance);
+  const unordered_set<variable_t> y_variables(const IQbfInstance & instance);
   const std::vector<logic::variable_t> clause_variables(const IQbfClause & clause, const std::unordered_set<logic::variable_t> x_variables);
   bool plus_one(std::vector<bool> & list, unsigned int position);
   std::vector<bool> dual_tuple(const IQbfClause & clause, const std::vector<logic::variable_t> vars);
@@ -209,6 +211,11 @@ namespace qbf2asp
     unordered_set<variable_t> x_vars = unordered_set<variable_t>(e_2_variables(instance));
     x_vars.insert(a_vars.begin(), a_vars.end());
     return x_vars;
+  }
+
+  const unordered_set<variable_t> y_variables(const IQbfInstance & instance)
+  {
+    return unordered_set<variable_t>(e_0_variables(instance));
   }
   
   bool plus_one(std::vector<bool> & list, unsigned int position)
