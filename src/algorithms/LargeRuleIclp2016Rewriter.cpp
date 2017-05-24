@@ -24,22 +24,11 @@ namespace qbf2asp
     rewrite(instance, std::cout);
   }
 
-  
   std::unordered_set<logic::variable_t> e_0_variables(const IQbfInstance & instance);
   std::unordered_set<logic::variable_t> a_1_variables(const IQbfInstance & instance);
   std::unordered_set<logic::variable_t> e_2_variables(const IQbfInstance & instance);
   const unordered_set<variable_t> x_variables(const IQbfInstance & instance);
   const unordered_set<variable_t> y_variables(const IQbfInstance & instance);
-  const std::vector<logic::variable_t> clause_variables(const IQbfClause & clause, const std::unordered_set<logic::variable_t> x_variables);
-  bool plus_one(std::vector<bool> & list, unsigned int position);
-  std::vector<bool> dual_tuple(const IQbfClause & clause, const std::vector<logic::variable_t> vars);
-  void print_tuple(ostream &out, const std::vector<bool> & vector);
-  void print_guess(ostream & out, const IQbfInstance & instance);
-  void print_clause_facts(ostream & out, const IQbfClause & clause, int clause_id);
-  void print_clause_rules(ostream & out, const IQbfClause & clause, int clause_id);
-  void print_constraint(ostream & out, const IQbfInstance & instance, bool qbf3sat);
-  void print_saturation_rules(ostream & out, const IQbfInstance & instance);
-  void print_saturation_constraint(ostream & out);
 
   static const char * ASP_BOT = "";
   static const char * ASP_VAR_Y = "Y";
@@ -78,7 +67,7 @@ namespace qbf2asp
     }
   }
 
-  void print_saturation_rules(ostream & out, const IQbfInstance & instance)
+  void LargeRuleIclp2016Rewriter::print_saturation_rules(ostream & out, const IQbfInstance & instance) const
   {
     const std::unordered_set<logic::variable_t> & forall_1_variables = a_1_variables(instance);
     
@@ -104,12 +93,15 @@ namespace qbf2asp
     }
   }
   
-  void print_saturation_constraint(ostream & out)
+  void LargeRuleIclp2016Rewriter::print_saturation_constraint(ostream & out) const
   {
     out << ASP_BOT << " " << ASP_RULE_SYM << " " << ASP_NOT << " " << ASP_PRED_SAT << "." << endl;
   }
   
-  void print_clause_rules(ostream & out, const IQbfClause & clause, int clause_id)
+  void
+  LargeRuleIclp2016Rewriter::print_clause_rules(ostream & out,
+						const IQbfClause & clause,
+						int clause_id) const
   {
     std::vector<logic::variable_t> clause_x = clause_variables(clause, x_variables(clause.instance()));
     std::vector<logic::variable_t> clause_y = clause_variables(clause, e_0_variables(clause.instance()));
@@ -128,7 +120,10 @@ namespace qbf2asp
     }
   }
 
-  void print_clause_facts(ostream & out, const IQbfClause & clause, int clause_id)
+  void
+  LargeRuleIclp2016Rewriter::print_clause_facts(ostream & out,
+						const IQbfClause & clause,
+						int clause_id) const
   {
     std::vector<logic::variable_t> clause_y
       = clause_variables(clause, e_0_variables(clause.instance()));
@@ -143,7 +138,7 @@ namespace qbf2asp
     } while (!plus_one(tuple, 0));
   }
 
-  void print_guess(ostream & out, const IQbfInstance & instance)
+  void LargeRuleIclp2016Rewriter::print_guess(ostream & out, const IQbfInstance & instance) const
   {
     const std::unordered_set<logic::variable_t> x_vars = x_variables(instance);
     
@@ -152,7 +147,7 @@ namespace qbf2asp
     }
   }
   
-  void print_eta_tuple(ostream & out, const IQbfClause & clause)
+  void LargeRuleIclp2016Rewriter::print_eta_tuple(ostream & out, const IQbfClause & clause) const
   {
     std::vector<logic::variable_t> clause_y_vars = clause_variables(clause, e_0_variables(clause.instance()));
     for (unsigned int i = 0; i < clause_y_vars.size(); i++) {
@@ -160,7 +155,10 @@ namespace qbf2asp
     }
   }
 
-  void print_constraint(ostream & out, const IQbfInstance & instance, bool qbf3sat)
+  void
+  LargeRuleIclp2016Rewriter::print_constraint(ostream & out,
+					      const IQbfInstance & instance,
+					      bool qbf3sat) const
   {
     bool first = true;
     out << (qbf3sat ? ASP_PRED_SAT : ASP_BOT) << " :- ";
@@ -179,14 +177,59 @@ namespace qbf2asp
     out << "." << endl;
   }
 
-  void print_tuple(ostream &out, const std::vector<bool> & vector)
+  void LargeRuleIclp2016Rewriter::print_tuple(ostream &out, const std::vector<bool> & vector) const
   {
     for (unsigned int i = 0; i < vector.size(); i++) {
       out << vector.at(i) << (i == vector.size() - 1 ? "" : ",");
     }
   }
+  
+  bool LargeRuleIclp2016Rewriter::plus_one(std::vector<bool> & list, unsigned int position) const
+  {
+    bool new_carry = false;
+    if (list.empty()) {
+      new_carry = true;
+    } else if (list.size() - 1 == position) {
+      if (list.at(position)) {
+	list.at(position) = false;
+	new_carry = true;
+      } else {
+	list.at(position) = true;
+	new_carry = false;
+      }
+    } else {
+      bool old_carry = plus_one(list, position + 1);
+      new_carry = list.at(position) && old_carry;
+      list.at(position) = list.at(position) != old_carry;
+    }
+    return new_carry;
+  }
 
-  std::unordered_set<logic::variable_t> e_0_variables(const IQbfInstance & instance)
+  const std::vector<logic::variable_t>
+  LargeRuleIclp2016Rewriter::clause_variables(const IQbfClause & clause,
+					      const std::unordered_set<logic::variable_t> x_variables) const
+  {
+    std::vector<logic::variable_t> result = std::vector<logic::variable_t>();
+    for (auto it = x_variables.begin(); it != x_variables.end(); ++it) {
+      if (clause.contains(*it)) {
+	result.push_back(*it);
+      }
+    }
+    return result;
+  }
+
+  std::vector<bool>
+  LargeRuleIclp2016Rewriter::dual_tuple(const IQbfClause & clause,
+					const std::vector<logic::variable_t> vars) const
+  {
+    std::vector<bool> dual = std::vector<bool>(vars.size());
+    for (unsigned int i = 0; i < vars.size(); i++) {
+      dual.at(i) = clause.isNegated(vars.at(i)) ? true : false;
+    }
+    return dual;
+  }
+
+    std::unordered_set<logic::variable_t> e_0_variables(const IQbfInstance & instance)
   {
     return instance.variables(instance.innermostQuantifierLevel());
   }
@@ -216,47 +259,6 @@ namespace qbf2asp
   const unordered_set<variable_t> y_variables(const IQbfInstance & instance)
   {
     return unordered_set<variable_t>(e_0_variables(instance));
-  }
-  
-  bool plus_one(std::vector<bool> & list, unsigned int position)
-  {
-    bool new_carry = false;
-    if (list.empty()) {
-      new_carry = true;
-    } else if (list.size() - 1 == position) {
-      if (list.at(position)) {
-	list.at(position) = false;
-	new_carry = true;
-      } else {
-	list.at(position) = true;
-	new_carry = false;
-      }
-    } else {
-      bool old_carry = plus_one(list, position + 1);
-      new_carry = list.at(position) && old_carry;
-      list.at(position) = list.at(position) != old_carry;
-    }
-    return new_carry;
-  }
-
-  const std::vector<logic::variable_t> clause_variables(const IQbfClause & clause, const std::unordered_set<logic::variable_t> x_variables)
-  {
-    std::vector<logic::variable_t> result = std::vector<logic::variable_t>();
-    for (auto it = x_variables.begin(); it != x_variables.end(); ++it) {
-      if (clause.contains(*it)) {
-	result.push_back(*it);
-      }
-    }
-    return result;
-  }
-
-  std::vector<bool> dual_tuple(const IQbfClause & clause, const std::vector<logic::variable_t> vars)
-  {
-    std::vector<bool> dual = std::vector<bool>(vars.size());
-    for (unsigned int i = 0; i < vars.size(); i++) {
-      dual.at(i) = clause.isNegated(vars.at(i)) ? true : false;
-    }
-    return dual;
   }
   
 } // namespace qbf2asp

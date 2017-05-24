@@ -3,57 +3,75 @@
 
 namespace qbf2asp
 {
-	using logic::IQbfInstance;
+  using logic::IQbfInstance;
   using logic::variable_t;
   using logic::IQbfClause;
 
-	using std::ostream;
-	using std::endl;
+  using std::ostream;
+  using std::endl;
   using std::unordered_set;
 
+  const std::unordered_set<logic::variable_t> a_1_variables(const logic::IQbfInstance & instance);
   const std::unordered_set<logic::variable_t> x_variables(const logic::IQbfInstance & instance);
   const std::unordered_set<logic::variable_t> y_variables(const logic::IQbfInstance & instance);
 
-  void print_facts(ostream & out, const IQbfInstance & instance);
-  void print_guess(ostream & out);
-  void print_constraint(ostream & out, const IQbfInstance & instance);
-  void print_tau_expr(ostream & out, const IQbfClause & clause);
-  void print_lambda_expr(ostream & out, variable_t variable, bool isNegated);
+  LargeRuleArithmeticsRewriter::LargeRuleArithmeticsRewriter() { }
 
-	LargeRuleArithmeticsRewriter::LargeRuleArithmeticsRewriter() { }
+  LargeRuleArithmeticsRewriter::~LargeRuleArithmeticsRewriter() { }
 
-	LargeRuleArithmeticsRewriter::~LargeRuleArithmeticsRewriter() { }
+  void LargeRuleArithmeticsRewriter::rewrite(const IQbfInstance &instance) const
+  {
+    rewrite(instance, std::cout);
+  }
 
-	void LargeRuleArithmeticsRewriter::rewrite(
-			const IQbfInstance &instance) const
-	{
-		rewrite(instance, std::cout);
-	}
+  void LargeRuleArithmeticsRewriter::rewrite(const IQbfInstance &instance, ostream &out) const
+  {
+    if (instance.isDnf()) {
+      std::cerr << "Disjunctive QBF not supported at the moment" << endl;
+      exit(4);
+    }
+    if (instance.innermostQuantifierLevel() > 2) {
+      std::cerr << "Only three quantifier levels are supported" << endl;
+      exit(4);
+    }
+    print_facts(out, instance);
+    print_guess(out);
+    print_constraint(out, instance);
 
-	void LargeRuleArithmeticsRewriter::rewrite(
-			const IQbfInstance &instance,
-			ostream &out) const
-	{
-	  if (instance.isDnf()) {
-	    std::cerr << "Disjunctive QBF not supported at the moment" << endl;
-	    exit(4);
-	  }
-	  if (instance.innermostQuantifierLevel() > 2) {
-	    std::cerr << "Only three quantifier levels are supported" << endl;
-	    exit(4);
-	  }
-	  print_facts(out, instance);
-	  print_guess(out);
-	  print_constraint(out, instance);
-	}
+    if(instance.innermostQuantifierLevel() == 2) {
+      print_saturation_constraint(out);
+      print_saturation_rules(out, instance);
+    }
+  }
 
-  void print_constraint(ostream & out, const IQbfInstance & instance)
+  void LargeRuleArithmeticsRewriter::print_saturation_constraint(ostream & out) const
+  {
+    out << ":-" << " " << "not" << " " << "sat" << "." << endl;
+  }
+
+  void LargeRuleArithmeticsRewriter::print_saturation_rules(ostream & out, const IQbfInstance & instance) const
+  {
+    const unordered_set<variable_t> & forall_1_variables = a_1_variables(instance);
+
+    for (auto & x : forall_1_variables) {
+      out << "assign" << "(" << "x" << "_" << x << ", " << "1" << ")" << " "
+	  << ":-" << " " << "sat" << "." << endl;
+      out << "assign" << "(" << "x" << "_" << x << ", " << "0" << ")" << " "
+	  << ":-" << " " << "sat" << "." << endl;
+    }
+  }
+
+  void LargeRuleArithmeticsRewriter::print_constraint(ostream & out, const IQbfInstance & instance) const
   {
     bool first = true;
     const unordered_set<variable_t> x_vars = x_variables(instance);
     const unordered_set<variable_t> y_vars = y_variables(instance);
 
-    out << ":-";
+    if (instance.innermostQuantifierLevel() == 2) {
+      out << "sat" << " " << ":-";
+    } else {
+      out << ":-";
+    }
     
     for (auto & x : x_vars) {
       out << (first ? " " : ", ") << "assign" << "(" << "x" << "_" << x << ", " << "V" << "_" << x << ")";
@@ -85,7 +103,7 @@ namespace qbf2asp
     out << "." << endl;
   }
   
-  void print_tau_expr(ostream & out, const IQbfClause & clause)
+  void LargeRuleArithmeticsRewriter::print_tau_expr(ostream & out, const IQbfClause & clause) const
   {
     bool first = true;
     for (auto & x : clause) {
@@ -97,7 +115,7 @@ namespace qbf2asp
     }
   }
 
-  void print_lambda_expr(ostream & out, variable_t variable, bool isNegated)
+  void LargeRuleArithmeticsRewriter::print_lambda_expr(ostream & out, variable_t variable, bool isNegated) const
   {
     if (isNegated) {
       out << "(" << "1" << "-" << "V" << "_" << variable << ")";
@@ -106,7 +124,7 @@ namespace qbf2asp
     }
   }
 
-  void print_facts(ostream & out, const IQbfInstance & instance)
+  void LargeRuleArithmeticsRewriter::print_facts(ostream & out, const IQbfInstance & instance) const
   {
     const unordered_set<variable_t> x_vars = x_variables(instance);
     out << "tf" << "(" << "0" << ")" << "." << endl;
@@ -116,7 +134,7 @@ namespace qbf2asp
     }
   }
 
-  void print_guess(ostream & out)
+  void LargeRuleArithmeticsRewriter::print_guess(ostream & out) const
   {
     out << "assign" << "(" << "X" << ", " << "1" << ")" << " " << "|" << " "
 	<< "assign" << "(" << "X" << ", " << "0" << ")" << " "
