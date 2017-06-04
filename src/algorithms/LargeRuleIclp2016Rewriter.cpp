@@ -229,7 +229,7 @@ namespace qbf2asp
     return dual;
   }
 
-    std::unordered_set<logic::variable_t> e_0_variables(const IQbfInstance & instance)
+  std::unordered_set<logic::variable_t> e_0_variables(const IQbfInstance & instance)
   {
     return instance.variables(instance.innermostQuantifierLevel());
   }
