@@ -17,8 +17,8 @@ namespace qbf2asp
   
   void print_guess_rule(ostream & out);
   void print_facts(ostream & out, const IQbfInstance & instance);
-  void print_clause_facts(ostream & out, const IQbfClause & clause, int clause_id);
-  void print_saturation_rules(ostream & out, const IQbfInstance & instance);
+  void print_clause_facts(ostream & out, const IQbfInstance & instance, const IQbfClause & clause, int clause_id);
+  void print_saturation_rules(ostream & out);
   void print_main_rule(ostream & out, const IQbfInstance & instance);
   void print_constraint(ostream & out);
   bool clauses_are_uniform(const IQbfInstance & instance);
@@ -46,35 +46,14 @@ namespace qbf2asp
       std::cerr << "Only two quantifier levels are supported" << endl;
       exit(4);
     }
-    if (!clauses_are_uniform(instance)) {
-      std::cerr << "Only uniform clause instances supported at the moment" << endl;
-      exit(4);
-    }
     
     print_guess_rule(out);
-    print_saturation_rules(out, instance);
+    print_saturation_rules(out);
     print_main_rule(out, instance);
     print_constraint(out);
     print_facts(out, instance);
   }
-
-  bool clauses_are_uniform(const IQbfInstance & instance)
-  {
-    int first = 1;
-    int clause_length = -1;
-    for (auto & c : instance) {
-      if (first) {
-	clause_length = std::distance(c.begin(), c.end());
-	first = false;
-      } else {
-	if (clause_length != std::distance(c.begin(), c.end())) {
-	  return false;
-	}
-      }
-    }
-    return true;
-  }
-
+  
   int max_clause_length(const IQbfInstance & instance)
   {
     int max_length = 0;
@@ -109,7 +88,7 @@ namespace qbf2asp
     out << "." << endl;
   }
 
-  void print_saturation_rules(ostream & out, const IQbfInstance & instance)
+  void print_saturation_rules(ostream & out)
   {
     out << "ass" << "(" << "X" << "," << 0 << ")" << " :- "
 	<< "sat" << "," << " " << "exists" << "(" << "X" << ")"
@@ -134,6 +113,8 @@ namespace qbf2asp
     
     variables.insert(a_1_vars.begin(), a_1_vars.end());
     variables.insert(e_0_vars.begin(), e_0_vars.end());
+
+    out << "ass" << "(" << "f" << "," << 0 << ")" << "." << endl;
     
     for (auto & x : variables) {
       out << "var" << "(" << "x" << "_" << x << ")" << "." << endl;
@@ -145,11 +126,11 @@ namespace qbf2asp
 
     for (IQbfInstance::const_iterator itc = instance.begin(); itc != instance.end(); ++itc) {
       int clause_id = std::distance(instance.begin(), itc);
-      print_clause_facts(out, *itc, clause_id);
+      print_clause_facts(out, instance, *itc, clause_id);
     }
   }
 
-  void print_clause_facts(ostream & out, const IQbfClause & clause, int clause_id)
+  void print_clause_facts(ostream & out, const IQbfInstance & instance, const IQbfClause & clause, int clause_id)
   {
     int position = 0;
     for (auto & v : clause) {
@@ -162,6 +143,11 @@ namespace qbf2asp
       }
       out << ")" << "." << endl;
       position++;
+    }
+    int max_position = max_clause_length(instance);
+    for (; position < max_position; position++) {
+      out << "pos" << "_" << position << "(" << "c" << "_" << clause_id << ","
+	  << "f" << "," << 1 << ")" << "." << endl;
     }
   }
 
