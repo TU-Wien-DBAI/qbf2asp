@@ -106,17 +106,14 @@ namespace qbf2asp
     std::vector<logic::variable_t> clause_x = clause_variables(clause, x_variables(clause.instance()));
     std::vector<logic::variable_t> clause_y = clause_variables(clause, e_0_variables(clause.instance()));
     for (auto it = clause_x.begin(); it != clause_x.end(); ++it) {
-      std::vector<bool> tuple = std::vector<bool>(clause_y.size());
       const char * polarity = !clause.isNegated(*it) ? "t" : "f";
-      do {
-	out << "c_" << clause_id;
-	if (clause_y.size() > 0) {
-	  out << "(";
-	  print_tuple(out, tuple);
-	  out << ")";
-	}
-	out << " :- " << polarity << "(x_" << *it << ")." << endl;
-      } while (!plus_one(tuple, 0));
+      out << "c" << "_" << clause_id;
+      if (clause_y.size() > 0) {
+	out << "(";
+	print_tuple(out, dual_tuple(clause, clause_y));
+	out << ")";
+      }
+      out << " :- " << polarity << "(x_" << *it << ")." << endl;
     }
   }
 
