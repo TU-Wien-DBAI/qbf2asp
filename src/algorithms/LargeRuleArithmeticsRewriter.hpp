@@ -24,16 +24,27 @@ namespace qbf2asp
 			 const logic::IQbfInstance &instance,
 			 std::ostream &out) const override;
   private:
-    void print_facts(std::ostream & out, const logic::IQbfInstance & instance) const;
+    void print_facts(
+      std::ostream & out, const logic::IQbfInstance & instance) const;
+
     void print_guess(std::ostream & out) const;
-    void print_constraint(std::ostream & out, const logic::IQbfInstance & instance) const;
-    void print_tau_expr(std::ostream & out, const logic::IQbfClause & clause) const;
-    void print_lambda_expr(std::ostream & out, logic::variable_t variable, bool isNegated) const;
+
+    void print_constraint(
+      std::ostream & out, const logic::IQbfInstance & instance) const;
+
+    void print_tau_expr(
+      std::ostream & out, const logic::IQbfClause & clause) const;
+
+    void print_lambda_expr(
+      std::ostream & out, logic::variable_t variable, bool isNegated) const;
+
     void print_saturation_constraint(std::ostream & out) const;
-    void print_saturation_rules(std::ostream & out, const logic::IQbfInstance & instance) const;
+
+    void print_saturation_rules(
+      std::ostream & out, const logic::IQbfInstance & instance) const;
 
 
-		
+
   }; // class LargeRuleArithmeticsRewriter
 
 } // namespace qbf2asp

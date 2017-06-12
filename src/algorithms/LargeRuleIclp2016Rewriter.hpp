@@ -26,23 +26,41 @@ namespace qbf2asp
 			 std::ostream &out) const override;
 
   private:
-    
-    const std::vector<logic::variable_t>
-      clause_variables(const logic::IQbfClause & clause,
-		       const std::unordered_set<logic::variable_t> x_variables) const;
-    std::vector<bool>
-      dual_tuple(const logic::IQbfClause & clause, const std::vector<logic::variable_t> vars) const;
+
+    const std::vector<logic::variable_t> clause_variables(
+      const logic::IQbfClause & clause,
+      const std::unordered_set<logic::variable_t> x_variables) const;
+
+    std::vector<bool> dual_tuple(
+      const logic::IQbfClause & clause,
+      const std::vector<logic::variable_t> vars) const;
 
     bool plus_one(std::vector<bool> & list, unsigned int position) const;
-    
+
     void print_tuple(std::ostream &out, const std::vector<bool> & vector) const;
-    void print_guess(std::ostream & out, const logic::IQbfInstance & instance) const;
-    void print_clause_facts(std::ostream & out, const logic::IQbfClause & clause, int clause_id) const;
-    void print_clause_rules(std::ostream & out, const logic::IQbfClause & clause, int clause_id) const;
-    void print_constraint(std::ostream & out, const logic::IQbfInstance & instance, bool qbf3sat) const;
-    void print_saturation_rules(std::ostream & out, const logic::IQbfInstance & instance) const;
+
+    void print_guess(
+      std::ostream & out, const logic::IQbfInstance & instance) const;
+
+    void print_clause_facts(
+      std::ostream & out,
+      const logic::IQbfClause & clause, int clause_id) const;
+
+    void print_clause_rules(
+      std::ostream & out,
+      const logic::IQbfClause & clause, int clause_id) const;
+
+    void print_constraint(
+      std::ostream & out,
+      const logic::IQbfInstance & instance, bool qbf3sat) const;
+
+    void print_saturation_rules(
+      std::ostream & out, const logic::IQbfInstance & instance) const;
+
     void print_saturation_constraint(std::ostream & out) const;
-    void print_eta_tuple(std::ostream & out, const logic::IQbfClause & clause) const;
+
+    void print_eta_tuple(
+      std::ostream & out, const logic::IQbfClause & clause) const;
 
   }; // class LargeRuleIclp2016Rewriter
 
