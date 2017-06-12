@@ -15,15 +15,6 @@ namespace qbf2asp
   std::unordered_set<logic::variable_t> a_1_variables(const IQbfInstance & instance);
   std::unordered_set<logic::variable_t> e_2_variables(const IQbfInstance & instance);
   
-  void print_guess_rule(ostream & out);
-  void print_facts(ostream & out, const IQbfInstance & instance);
-  void print_clause_facts(ostream & out, const IQbfInstance & instance, const IQbfClause & clause, int clause_id);
-  void print_saturation_rules(ostream & out);
-  void print_main_rule(ostream & out, const IQbfInstance & instance);
-  void print_constraint(ostream & out);
-  bool clauses_are_uniform(const IQbfInstance & instance);
-  int max_clause_length(const IQbfInstance & instance);
-
   SaturationRewriter::SaturationRewriter() { }
 
   SaturationRewriter::~SaturationRewriter() { }
@@ -54,7 +45,7 @@ namespace qbf2asp
     print_facts(out, instance);
   }
   
-  int max_clause_length(const IQbfInstance & instance)
+  int SaturationRewriter::max_clause_length(const IQbfInstance & instance) const
   {
     int max_length = 0;
     for (auto & c : instance) {
@@ -64,12 +55,12 @@ namespace qbf2asp
     return max_length;
   }
 
-  void print_constraint(ostream & out)
+  void SaturationRewriter::print_constraint(ostream & out) const
   {
     out << ":-" << " " << "not" << " " << "sat" << "." << endl;
   }
   
-  void print_main_rule(ostream & out, const IQbfInstance & instance)
+  void SaturationRewriter::print_main_rule(ostream & out, const IQbfInstance & instance) const
   {
     int positions = max_clause_length(instance);
     out << "sat" << " :-";
@@ -88,7 +79,7 @@ namespace qbf2asp
     out << "." << endl;
   }
 
-  void print_saturation_rules(ostream & out)
+  void SaturationRewriter::print_saturation_rules(ostream & out) const
   {
     out << "ass" << "(" << "X" << "," << 0 << ")" << " :- "
 	<< "sat" << "," << " " << "exists" << "(" << "X" << ")"
@@ -98,14 +89,14 @@ namespace qbf2asp
 	<< "." << endl;
   }
   
-  void print_guess_rule(ostream & out)
+  void SaturationRewriter::print_guess_rule(ostream & out) const
   {
     out << "ass" << "(" << "X" << "," << 1 << ")" << " | "
 	<< "ass" << "(" << "X" << "," << 0 << ")" << " :- "
 	<< "var" << "(" << "X" << ")" << "." << endl;
   }
   
-  void print_facts(ostream & out, const IQbfInstance & instance)
+  void SaturationRewriter::print_facts(ostream & out, const IQbfInstance & instance) const
   {
     unordered_set<variable_t> a_1_vars = a_1_variables(instance);
     unordered_set<variable_t> e_0_vars = e_0_variables(instance);
@@ -130,7 +121,7 @@ namespace qbf2asp
     }
   }
 
-  void print_clause_facts(ostream & out, const IQbfInstance & instance, const IQbfClause & clause, int clause_id)
+  void SaturationRewriter::print_clause_facts(ostream & out, const IQbfInstance & instance, const IQbfClause & clause, int clause_id) const
   {
     int position = 0;
     for (auto & v : clause) {
