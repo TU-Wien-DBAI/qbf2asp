@@ -205,11 +205,11 @@ namespace qbf2asp
       new_carry = true;
     } else if (list.size() - 1 == position) {
       if (list.at(position)) {
-	list.at(position) = false;
-	new_carry = true;
+	       list.at(position) = false;
+         new_carry = true;
       } else {
-	list.at(position) = true;
-	new_carry = false;
+        list.at(position) = true;
+        new_carry = false;
       }
     } else {
       bool old_carry = plus_one(list, position + 1);
