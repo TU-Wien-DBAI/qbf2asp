@@ -30,6 +30,7 @@ namespace qbf2asp
     virtual void rewrite(
 			 const logic::IQbfInstance &instance,
 			 std::ostream &out) const override;
+
   private:
     /* Prints the guess rule (SAT-1).
      * @param out The output stream to which the rule is printed.
