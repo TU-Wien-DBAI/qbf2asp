@@ -32,8 +32,8 @@ AM_CPPFLAGS = \
 # initialize variables
 EXTRA_DIST =
 CLEANFILES =
-BUILT_SOURCES = 
-				
+BUILT_SOURCES =
+
 ############################
 # LIBRARIES TO BUILD:	   #
 ############################
@@ -68,6 +68,9 @@ libqbf2asp_la_SOURCES = \
 	src/preamble.h \
 	\
 	src/create.cpp \
+	\
+	src/QcnfNormalizer.cpp \
+	src/QcnfNormalizer.hpp \
 	\
 	src/algorithms/LargeRuleArithmeticsRewriter.cpp \
 	src/algorithms/LargeRuleArithmeticsRewriter.hpp \

@@ -15,6 +15,11 @@
 #include <cstring>
 #include <csignal>
 
+// include new classes: VariableGenerator and QcnfNormalizer etc.
+// once this is done these definitions should be in some common header.
+#include "QcnfNormalizer.hpp"
+
+
 #ifdef HAVE_UNISTD_H 
 	#include <unistd.h>
 #else
@@ -301,8 +306,8 @@ int main(int argc, char *argv[])
 	std::cerr << "Parsing..." << std::endl;
 	std::unique_ptr<logic::IQDIMACSParser> parser(
 			logic::parser::qdimacsParser());
-	std::unique_ptr<logic::IQbfInstance> instance(
-			parser->parse(inputStream));
+	std::unique_ptr<const logic::IQbfInstance> instance(
+	    qbf2asp::NaiveQcnfNormalizer(4).normalize(*(parser->parse(inputStream))));
 	parser.reset();
 	logic::Benchmark::registerTimestamp("parsing time");
 
