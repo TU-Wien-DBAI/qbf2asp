@@ -1,7 +1,9 @@
 #include "./preamble.h"
+
 #include "QcnfNormalizer.hpp"
 
 #include <logic/parsers>
+
 #include <set>
 #include <utility>
 #include <list>

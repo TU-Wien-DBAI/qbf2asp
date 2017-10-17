@@ -3,39 +3,30 @@
 
 #include <qbf2asp/global>
 #include <logic/parsers>
+
 #include <set>
 #include <utility>
 #include <list>
 
 namespace qbf2asp
 {
-
-    using std::pair;
-    using std::list;
-    using std::set;
-  
-    using logic::IQbfClause;
-    using logic::IQbfInstance;
-    using logic::IQbfInstanceBuilder;
-    using logic::variable_t;
-
     class QBF2ASP_LOCAL VariableGenerator
     {
       public:
-	VariableGenerator(const IQbfInstance * instance);
-	variable_t freshVariable();
+	VariableGenerator(const logic::IQbfInstance * instance);
+	logic::variable_t freshVariable();
       private:
-	const IQbfInstance * instance = NULL;
-	variable_t variableCounter;
+	const logic::IQbfInstance * instance = NULL;
+	logic::variable_t variableCounter;
     };
   
     class QBF2ASP_LOCAL QbfLiteral {
     private:
 	bool polarity_;
-	variable_t variable_;
+	logic::variable_t variable_;
     public:
-	QbfLiteral(variable_t variable, bool polarity);
-	variable_t variable(void) const;
+	QbfLiteral(logic::variable_t variable, bool polarity);
+	logic::variable_t variable(void) const;
 	bool polarity(void) const;
 	bool operator==(const QbfLiteral & other);
 	bool operator<(const QbfLiteral & other);
@@ -48,20 +39,20 @@ namespace qbf2asp
 
 	unsigned int maxClauseSize() const;
     
-	virtual pair<list<QbfLiteral>*,list<QbfLiteral>*> partitionClause(
-	    list<QbfLiteral> * literals, const IQbfInstance & instance) = 0;
+	virtual std::pair<std::list<QbfLiteral>*,std::list<QbfLiteral>*> partitionClause(
+	    std::list<QbfLiteral> * literals, const logic::IQbfInstance & instance) = 0;
 
-	const IQbfInstance * normalize(const IQbfInstance & instance);
+	const logic::IQbfInstance * normalize(const logic::IQbfInstance & instance);
 
       private:
 	unsigned int maxClauseSize_;
 
       private:
-	list<list<QbfLiteral> *> * normalizeClause(
-	    const IQbfClause & clause,
-	    set<variable_t> * variables,
+	std::list<std::list<QbfLiteral> *> * normalizeClause(
+	    const logic::IQbfClause & clause,
+	    std::set<logic::variable_t> * variables,
 	    VariableGenerator variableGenerator,
-	    const IQbfInstance & instance);
+	    const logic::IQbfInstance & instance);
     
     };
 
@@ -70,24 +61,24 @@ namespace qbf2asp
       public:
 	NaiveQcnfNormalizer(unsigned int maxClauseSize);
 	
-	virtual pair<list<QbfLiteral> *, list<QbfLiteral> *> partitionClause(
-	    list<QbfLiteral> * literals, const IQbfInstance & instance);
+	virtual std::pair<std::list<QbfLiteral> *, std::list<QbfLiteral> *> partitionClause(
+	    std::list<QbfLiteral> * literals, const logic::IQbfInstance & instance);
     };
 
-    unsigned int clauseCount(const IQbfInstance & instance);
+    unsigned int clauseCount(const logic::IQbfInstance & instance);
   
-    void QBF2ASP_API printQbfQdimacs(const IQbfInstance & instance);
+    void QBF2ASP_API printQbfQdimacs(const logic::IQbfInstance & instance);
 
-    void printQbfQdimacs(const IQbfInstance & instance);
+    void printQbfQdimacs(const logic::IQbfInstance & instance);
 
-    const IQbfInstance * buildQbfInstance(
-	const list<list<QbfLiteral>*> * newClauses,
-	const set<variable_t> * splitVariables,
-	const IQbfInstance & instance);
+    const logic::IQbfInstance * buildQbfInstance(
+	const std::list<std::list<QbfLiteral>*> * newClauses,
+	const std::set<logic::variable_t> * splitVariables,
+	const logic::IQbfInstance & instance);
     
-    void copyLiteralListToClause(list<QbfLiteral> * literals, IQbfClause & clause);
+    void copyLiteralListToClause(std::list<QbfLiteral> * literals, logic::IQbfClause & clause);
     
-    list<QbfLiteral> * clauseToLiteralList(const IQbfClause & clause);
+    std::list<QbfLiteral> * clauseToLiteralList(const logic::IQbfClause & clause);
 
 }
 
