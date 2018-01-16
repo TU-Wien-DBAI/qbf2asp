@@ -1,7 +1,7 @@
 #ifndef QBF2ASP_QBF2ASP_STANDARDDEPENDENCYSCHEME_H_
 #define QBF2ASP_QBF2ASP_STANDARDDEPENDENCYSCHEME_H_
 
-#include <qbf2asp/IDependencyScheme.hpp>
+#include <qbf2asp/DependencyScheme.hpp>
 #include <logic/parsers>
 
 #include <map>
@@ -17,18 +17,19 @@ namespace qbf2asp
         ~StandardDependencyScheme();
 
     public:
-        virtual const std::unordered_set<logic::variable_t> &
-            rightVariables(logic::variable_t variable) const;
+        virtual const std::set<logic::variable_t> &
+            dependingVariables(logic::variable_t variable) const;
 
         virtual void removeVariable(logic::variable_t variable);
 
-        virtual void show(void) const;
+        virtual const logic::IQbfInstance & getFormula() const;
 
     private:
-        std::map<logic::variable_t, std::unordered_set<logic::variable_t>> scheme_;
+        std::map<logic::variable_t, std::set<logic::variable_t>> scheme_;
+        const logic::IQbfInstance & formula_;
 
     private:
-        void populateScheme(const logic::IQbfInstance & formula);
+        void populateScheme(void);
         
         void lookupRightVariables(
             logic::variable_t variable, const logic::IQbfInstance & formula);

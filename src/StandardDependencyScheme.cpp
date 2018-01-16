@@ -18,27 +18,31 @@ namespace qbf2asp
     using logic::variable_t;
 
     StandardDependencyScheme::StandardDependencyScheme(
-        const IQbfInstance & formula) : scheme_()
+        const IQbfInstance & formula) : scheme_(), formula_(formula)
     {
-        populateScheme(formula);
+        populateScheme();
     }
 
-    const unordered_set<logic::variable_t> &
-    StandardDependencyScheme::rightVariables(variable_t variable) const
+    const set<logic::variable_t> &
+    StandardDependencyScheme::dependingVariables(variable_t variable) const
     {
         StandardDependencyScheme * this_ptr
             = const_cast<StandardDependencyScheme *>(this);
         
         return this_ptr->scheme_[variable];
     }
+
+    const IQbfInstance & StandardDependencyScheme::getFormula(void) const
+    {
+        return formula_;
+    }
     
-    void StandardDependencyScheme::populateScheme(
-        const IQbfInstance & formula)
+    void StandardDependencyScheme::populateScheme(void)
     {
         for (variable_t variable = 1;
-             variable <= formula.variableCount(); variable++) {
+             variable <= formula_.variableCount(); variable++) {
             scheme_[variable];
-            lookupRightVariables(variable, formula);
+            lookupRightVariables(variable, formula_);
         }
     }
 
@@ -165,23 +169,11 @@ namespace qbf2asp
     void StandardDependencyScheme::removeVariable(variable_t variable)
     {
         scheme_.erase(variable);
-        map<variable_t, unordered_set<variable_t>>::iterator it = scheme_.begin();
+        map<variable_t, set<variable_t>>::iterator it = scheme_.begin();
         while (it != scheme_.end()) {
             it->second.erase(variable);
             it++;
         }
-    }
-
-    void StandardDependencyScheme::show(void) const
-    {
-        std::cout << "Standard Dependency Scheme";
-        for (auto pair : scheme_) {
-            std::cout << std::endl << pair.first << " :";
-            for (variable_t variable : pair.second) {
-                std::cout << " " << variable;
-            }
-        }
-        std::cout << std::endl;
     }
 }
     
