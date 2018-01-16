@@ -177,7 +177,7 @@ namespace qbf2asp
 	for (auto literalList : *newClauses) {
 	    copyLiteralListToClause(literalList, instanceBuilder->addClause());
 	}
-	for (variable_t variable = 1; variable < instance.variableCount(); variable++) {
+	for (variable_t variable = 1; variable <= instance.variableCount(); variable++) {
 	    instanceBuilder->setQuantifierLevel(variable, instance.quantifierLevel(variable));
 	}
 	for (variable_t variable : *splitVariables) {
