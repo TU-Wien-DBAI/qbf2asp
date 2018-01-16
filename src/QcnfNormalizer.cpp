@@ -172,6 +172,12 @@ namespace qbf2asp
 	const IQbfInstance & instance)
     {
 	IQbfInstanceBuilder * instanceBuilder = logic::parser::qbfInstanceBuilder();
+
+    if (instance.isCnf()) {
+        instanceBuilder->setCnf();
+    } else {
+        instanceBuilder->setDnf();
+    }
     
 	instanceBuilder->setVariableCount(instance.variableCount() + splitVariables->size());
 	for (auto literalList : *newClauses) {
