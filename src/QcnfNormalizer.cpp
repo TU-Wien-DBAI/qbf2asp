@@ -115,14 +115,14 @@ namespace qbf2asp
     }
   
     VariableGenerator::VariableGenerator(const IQbfInstance * instance) {
-	this->instance = instance;
-	variableCounter = 0;
-	for (const IQbfClause & clause : *instance) {
-	    for (const variable_t variable : clause) {
-		variableCounter = variableCounter < variable ? variable : variableCounter;
-	    }
-	    variableCounter++;
-	}
+        this->instance = instance;
+        variableCounter = 1;
+        for (const IQbfClause & clause : *instance) {
+            for (const variable_t variable : clause) {
+                variableCounter =
+                    (variableCounter <= variable) ? (variable + 1) : variableCounter;
+            }
+        }
     }
 
     variable_t VariableGenerator::freshVariable() {
@@ -180,6 +180,7 @@ namespace qbf2asp
     }
     
 	instanceBuilder->setVariableCount(instance.variableCount() + splitVariables->size());
+
 	for (auto literalList : *newClauses) {
 	    copyLiteralListToClause(literalList, instanceBuilder->addClause());
 	}
