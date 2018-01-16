@@ -14,7 +14,6 @@ namespace qbf2asp
     {
     public:
         StandardDependencyScheme(const logic::IQbfInstance & formula);
-        ~StandardDependencyScheme();
 
     public:
         virtual const std::set<logic::variable_t> &
