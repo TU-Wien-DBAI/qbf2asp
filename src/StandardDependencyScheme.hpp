@@ -53,6 +53,37 @@ namespace qbf2asp
             const logic::IQbfInstance & formula,
             logic::variable_t root,
             std::list<const logic::IQbfClause *> & working_clauses);
+
+    private:
+        class DependingNodeLookup {
+        public:
+            DependingNodeLookup(
+                const logic::IQbfInstance & formula,
+                logic::variable_t origin);
+            
+            void lookupDependingNodes(std::set<logic::variable_t> & variables);
+            
+        private:
+            void expandClause(const logic::IQbfClause & clause);
+            void expandVariable(logic::variable_t variable);
+            void expandOrigin(void);
+            void expandNodes(void);
+            
+        private:
+            const logic::IQbfInstance & formula_;
+            logic::variable_t origin_;
+            
+            std::list<logic::variable_t> working_variables_;
+            std::list<const logic::IQbfClause *> working_clauses_;
+            
+            std::map<logic::variable_t, bool> seen_variables_;
+            std::map<const logic::IQbfClause *, bool> seen_clauses_;
+
+            std::set<logic::variable_t> right_existential_variables_;
+            std::set<logic::variable_t> right_variables_;
+
+            std::set<logic::variable_t> depending_variables_;
+        };
     };
 }
 

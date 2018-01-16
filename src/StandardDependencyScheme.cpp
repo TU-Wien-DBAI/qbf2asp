@@ -38,106 +38,19 @@ namespace qbf2asp
     {
         return formula_;
     }
-    
+
     void StandardDependencyScheme::populateScheme(void)
     {
         for (variable_t variable = 1;
              variable <= formula_.variableCount(); variable++) {
-            scheme_[variable];
-            lookupRightVariables(variable, formula_);
+            DependingNodeLookup lookup(formula_, variable);
+            set<variable_t> dependingVariables;
+            lookup.lookupDependingNodes(dependingVariables);
+            scheme_[variable].insert(
+                dependingVariables.begin(), dependingVariables.end());
         }
     }
-
-    void StandardDependencyScheme::expandRootVariable(
-        const IQbfInstance & formula,
-        variable_t root,
-        list<const IQbfClause *> & working_clauses)
-    {
-        for (const IQbfClause & clause : formula) {
-            if (clause.contains(root)) {
-                working_clauses.push_back(&clause);
-            }
-        }
-    }
-    
-    void StandardDependencyScheme::lookupRightVariables(
-        variable_t variable, const IQbfInstance & formula)
-    {
-        list<variable_t> working_variables;
-        list<const IQbfClause *> working_clauses;
-        map<variable_t, bool> seen_variables;
-        map<const IQbfClause *, bool> seen_clauses;
-        set<variable_t> right_existential_variables;
-        set<variable_t> right_variables;
         
-        qbf2asp::rightExistentialVariables(formula, variable, right_existential_variables);
-        qbf2asp::rightVariables(formula, variable, right_variables);
-
-        expandRootVariable(formula, variable, working_clauses);
-
-        while (!working_variables.empty() || !working_clauses.empty()) {
-            if (!working_variables.empty()) {
-                variable_t v = working_variables.front();
-                working_variables.pop_front();
-                seen_variables[v] = true;
-                expandVariable(
-                    formula,
-                    variable,
-                    v,
-                    working_clauses,
-                    seen_clauses,
-                    right_existential_variables);
-            }
-            if (!working_clauses.empty()) {
-                const IQbfClause * c = working_clauses.front();
-                working_clauses.pop_front();
-                seen_clauses[c] = true;
-                expandClause(
-                    *c,
-                    working_variables,
-                    seen_variables,
-                    right_existential_variables,
-                    right_variables);
-            }
-        }
-    }
-
-    void StandardDependencyScheme::expandClause(
-        const IQbfClause & clause,
-        list<variable_t> & working_variables,
-        map<variable_t, bool> & seen_variables,
-        const set<variable_t> & right_existential_variables,
-        const set<variable_t> & right_variables)
-    {
-        for (variable_t v : clause) {
-            if (!seen_variables[v] && right_variables.count(v) > 0)
-                working_variables.push_back(v);
-        }
-     
-    }
-
-    void StandardDependencyScheme::expandVariable(
-        const IQbfInstance & formula,
-        variable_t root,
-        variable_t variable,
-        list<const IQbfClause*> & working_clauses,
-        map<const IQbfClause*, bool> & seen_clauses,
-        const set<variable_t> & right_existential_variables)
-    {
-        if (!qbf2asp::sameQuantifier(formula, root, variable))
-        {
-            scheme_[root].insert(variable);
-        }
-        if (right_existential_variables.count(variable) == 0) {
-            return ;
-        }
-        for (const IQbfClause & clause : formula) {
-            if (clause.contains(variable) && !seen_clauses[&clause]) {
-                working_clauses.push_back(&clause);
-            }
-        }
-    }
-    
     void StandardDependencyScheme::removeVariable(variable_t variable)
     {
         scheme_.erase(variable);
@@ -146,6 +59,79 @@ namespace qbf2asp
             it->second.erase(variable);
             it++;
         }
+    }
+
+    StandardDependencyScheme::DependingNodeLookup::DependingNodeLookup(
+        const IQbfInstance & formula, variable_t origin) : formula_(formula), origin_(origin)
+    {
+        qbf2asp::rightVariables(
+            formula_, origin_, right_variables_);
+        qbf2asp::rightExistentialVariables(
+            formula_, origin_, right_existential_variables_);
+    }
+
+    void StandardDependencyScheme::DependingNodeLookup::expandOrigin(void)
+    {
+        for (const IQbfClause & clause : formula_) {
+            if (clause.contains(origin_)) {
+                working_clauses_.push_back(&clause);
+            }
+        }
+    }
+
+    void StandardDependencyScheme::DependingNodeLookup::expandVariable(
+        variable_t variable)
+    {
+        if (!qbf2asp::sameQuantifier(formula_, origin_, variable))
+        {
+            depending_variables_.insert(variable);
+        }
+        if (right_existential_variables_.count(variable) == 0) {
+            return ;
+        }
+        for (const IQbfClause & clause : formula_) {
+            if (clause.contains(variable) && !seen_clauses_[&clause]) {
+                working_clauses_.push_back(&clause);
+            }
+        }
+    }
+
+    void StandardDependencyScheme::DependingNodeLookup::expandClause(
+        const IQbfClause & clause)
+    {
+        for (variable_t v : clause) {
+            if (!seen_variables_[v] && right_variables_.count(v) > 0)
+                working_variables_.push_back(v);
+        }
+    }
+
+    void StandardDependencyScheme::DependingNodeLookup::lookupDependingNodes(
+        set<variable_t> & variables)
+    {
+        expandNodes();
+        variables.insert(depending_variables_.begin(), depending_variables_.end());
+    }
+
+    void StandardDependencyScheme::DependingNodeLookup::expandNodes(void)
+    {
+        expandOrigin();
+
+        while (!working_variables_.empty() || !working_clauses_.empty()) {
+            if (!working_variables_.empty()) {
+                variable_t v = working_variables_.front();
+                working_variables_.pop_front();
+                seen_variables_[v] = true;
+                expandVariable(v);
+            }
+            if (!working_clauses_.empty()) {
+                const IQbfClause * c = working_clauses_.front();
+                working_clauses_.pop_front();
+                seen_clauses_[c] = true;
+                expandClause(*c);
+
+            }
+        }
+
     }
 }
     
