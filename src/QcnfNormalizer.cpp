@@ -218,13 +218,10 @@ namespace qbf2asp
             cout << (instance.isCnf() ? "a" : "e");
         }
         cout << " ";
-	    for (const IQbfClause & clause : instance) {
-		for (variable_t variable : clause) {
-		    if (instance.quantifierLevel(variable) == currentQuantifierLevel) {
-			cout << variable << " ";
-		    }
-		}
-	    }
+
+		for (variable_t variable : instance.variables(currentQuantifierLevel)) {
+            cout << variable << " ";
+        }
 	    cout << "0" << endl;
 	}
 
