@@ -19,9 +19,27 @@ namespace qbf2asp
         virtual void removeVariable(logic::variable_t variable) = 0;
     };
 
-    void showDependencyScheme(
+    QBF2ASP_API void showDependencyScheme(
         std::ostream & out,
         const IDependencyScheme & dependencyScheme);
+
+    QBF2ASP_API void rightVariables(
+        const logic::IQbfInstance & formula,
+        logic::variable_t variable,
+        std::set<logic::variable_t> & variables);
+
+    QBF2ASP_API void rightExistentialVariables(
+        const logic::IQbfInstance & formula,
+        logic::variable_t variable,
+        std::set<logic::variable_t> & variables);
+
+    QBF2ASP_API bool isExistentialLevel(
+        unsigned short level, const logic::IQbfInstance & formula);
+        
+    QBF2ASP_API bool sameQuantifier(
+        const logic::IQbfInstance & formula,
+        logic::variable_t v1, logic::variable_t v2);
+
 
 }
 

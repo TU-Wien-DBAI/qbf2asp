@@ -33,18 +33,7 @@ namespace qbf2asp
         
         void lookupRightVariables(
             logic::variable_t variable, const logic::IQbfInstance & formula);
-        
-        void rightExistentialVariables(
-            const logic::IQbfInstance & formula,
-            logic::variable_t variable,
-            std::set<logic::variable_t> & variables);
-        
-        bool isExistentialLevel(
-            unsigned short level, const logic::IQbfInstance & formula);
-        
-        bool sameQuantifier(const logic::IQbfInstance & formula,
-                            logic::variable_t v1, logic::variable_t v2);
-        
+                        
         void expandClause(
             const logic::IQbfClause & clause,
             std::list<logic::variable_t> & working_variables,
@@ -60,18 +49,10 @@ namespace qbf2asp
             std::map<const logic::IQbfClause *, bool> & seen_clauses,
             const std::set<logic::variable_t> & right_existential_variables);
 
-        void rightVariablesOf(
-            const logic::IQbfInstance & formula,
-            logic::variable_t variable,
-            std::set<logic::variable_t> & variables);
-
         void expandRootVariable(
             const logic::IQbfInstance & formula,
             logic::variable_t root,
             std::list<const logic::IQbfClause *> & working_clauses);
-
-
-
     };
 }
 

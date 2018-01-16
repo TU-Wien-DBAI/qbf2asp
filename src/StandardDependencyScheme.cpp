@@ -1,5 +1,7 @@
 #include "StandardDependencyScheme.hpp"
 
+#include <qbf2asp/DependencyScheme.hpp>
+
 #include <logic/parsers>
 
 #include <map>
@@ -68,8 +70,8 @@ namespace qbf2asp
         set<variable_t> right_existential_variables;
         set<variable_t> right_variables;
         
-        rightExistentialVariables(formula, variable, right_existential_variables);
-        rightVariablesOf(formula, variable, right_variables);
+        qbf2asp::rightExistentialVariables(formula, variable, right_existential_variables);
+        qbf2asp::rightVariables(formula, variable, right_variables);
 
         expandRootVariable(formula, variable, working_clauses);
 
@@ -78,13 +80,24 @@ namespace qbf2asp
                 variable_t v = working_variables.front();
                 working_variables.pop_front();
                 seen_variables[v] = true;
-                expandVariable(formula, variable, v, working_clauses, seen_clauses, right_existential_variables);
+                expandVariable(
+                    formula,
+                    variable,
+                    v,
+                    working_clauses,
+                    seen_clauses,
+                    right_existential_variables);
             }
             if (!working_clauses.empty()) {
                 const IQbfClause * c = working_clauses.front();
                 working_clauses.pop_front();
                 seen_clauses[c] = true;
-                expandClause(*c, working_variables, seen_variables, right_existential_variables, right_variables);
+                expandClause(
+                    *c,
+                    working_variables,
+                    seen_variables,
+                    right_existential_variables,
+                    right_variables);
             }
         }
     }
@@ -111,7 +124,7 @@ namespace qbf2asp
         map<const IQbfClause*, bool> & seen_clauses,
         const set<variable_t> & right_existential_variables)
     {
-        if (!sameQuantifier(formula, root, variable))
+        if (!qbf2asp::sameQuantifier(formula, root, variable))
         {
             scheme_[root].insert(variable);
         }
@@ -124,48 +137,7 @@ namespace qbf2asp
             }
         }
     }
-
-    bool StandardDependencyScheme::sameQuantifier(
-        const IQbfInstance & formula, variable_t v1, variable_t v2)
-    {
-        return formula.quantifierLevel(v1) % 2 == formula.quantifierLevel(v2) % 2;
-    }
     
-    void StandardDependencyScheme::rightVariablesOf(
-        const IQbfInstance & formula,
-        variable_t variable,
-        set<variable_t> & variables)
-    {
-        for (int quantifierLevel = formula.quantifierLevel(variable) + 1;
-             quantifierLevel <= formula.innermostQuantifierLevel();
-             quantifierLevel++) {
-            const unordered_set<variable_t> & levelVariables
-                = formula.variables(quantifierLevel);
-            variables.insert(levelVariables.begin(), levelVariables.end());
-        }
-    }
-    
-    void StandardDependencyScheme::rightExistentialVariables(
-        const IQbfInstance & formula, variable_t variable, set<variable_t> & variables)
-    {
-        for (int quantifierLevel = formula.quantifierLevel(variable) + 1;
-             quantifierLevel <= formula.innermostQuantifierLevel();
-             quantifierLevel++){
-            if (isExistentialLevel(quantifierLevel, formula)) {
-                const unordered_set<variable_t> & levelVariables
-                    = formula.variables(quantifierLevel);
-                variables.insert(levelVariables.begin(), levelVariables.end());
-            }
-        }
-    }
-
-    bool StandardDependencyScheme::isExistentialLevel(
-        unsigned short level, const IQbfInstance & formula)
-    {
-        return formula.isCnf()
-            && level % 2 == formula.innermostQuantifierLevel() % 2;
-    }
-
     void StandardDependencyScheme::removeVariable(variable_t variable)
     {
         scheme_.erase(variable);
