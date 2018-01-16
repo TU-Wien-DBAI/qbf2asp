@@ -199,39 +199,41 @@ namespace qbf2asp
 	return std::distance(instance.begin(), instance.end());
     }
   
-    void printQbfQdimacs(const IQbfInstance & instance)
+    void print_qbf_qdimacs(
+        std::ostream & out,
+        const IQbfInstance & instance)
     {
-	// print problem line
-	cout << "p" << " "
-	     << (instance.isCnf() ? "cnf" : "dnf") << " "
-	     << instance.variableCount() << " "
-	     << clauseCount(instance) << endl;
+        // print problem line
+        out << "p" << " "
+            << (instance.isCnf() ? "cnf" : "dnf") << " "
+            << instance.variableCount() << " "
+            << clauseCount(instance) << endl;
     
-	// print quantifier lines
-	for (int currentQuantifierLevel = 0;
-	     currentQuantifierLevel <= instance.innermostQuantifierLevel();
-	     currentQuantifierLevel++) {
-        bool primalQuantifier =
-            (currentQuantifierLevel + instance.innermostQuantifierLevel()) % 2 == 0;
-        if (primalQuantifier) {
-            cout << (instance.isCnf() ? "e" : "a");
-        } else {
-            cout << (instance.isCnf() ? "a" : "e");
-        }
-        cout << " ";
+        // print quantifier lines
+        for (int currentQuantifierLevel = 0;
+             currentQuantifierLevel <= instance.innermostQuantifierLevel();
+             currentQuantifierLevel++) {
+            bool primalQuantifier =
+                (currentQuantifierLevel + instance.innermostQuantifierLevel()) % 2 == 0;
+            if (primalQuantifier) {
+                out << (instance.isCnf() ? "e" : "a");
+            } else {
+                out << (instance.isCnf() ? "a" : "e");
+            }
+            out << " ";
 
-		for (variable_t variable : instance.variables(currentQuantifierLevel)) {
-            cout << variable << " ";
+            for (variable_t variable : instance.variables(currentQuantifierLevel)) {
+                out << variable << " ";
+            }
+            out << "0" << endl;
         }
-	    cout << "0" << endl;
-	}
 
-	// print clause lines
-	for (const IQbfClause & clause : instance) {
-	    for (variable_t variable : clause) {
-		cout << (clause.isNegated(variable) ? "-" : "") << variable << " ";
-	    }
-	    cout << "0" << endl;
-	}
+        // print clause lines
+        for (const IQbfClause & clause : instance) {
+            for (variable_t variable : clause) {
+                out << (clause.isNegated(variable) ? "-" : "") << variable << " ";
+            }
+            out << "0" << endl;
+        }
     }
 }

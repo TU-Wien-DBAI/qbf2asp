@@ -7,6 +7,7 @@
 #include <set>
 #include <utility>
 #include <list>
+#include <ostream>
 
 namespace qbf2asp
 {
@@ -67,9 +68,9 @@ namespace qbf2asp
 
     unsigned int clauseCount(const logic::IQbfInstance & instance);
   
-    void QBF2ASP_API printQbfQdimacs(const logic::IQbfInstance & instance);
-
-    void printQbfQdimacs(const logic::IQbfInstance & instance);
+    void QBF2ASP_API print_qbf_qdimacs(
+        std::ostream & out,
+        const logic::IQbfInstance & instance);
 
     const logic::IQbfInstance * buildQbfInstance(
 	const std::list<std::list<QbfLiteral>*> * newClauses,
