@@ -55,7 +55,18 @@ libqbf2asp_la_include_HEADERS = \
 	include/qbf2asp/IQbf2AspRewriterFactory.hpp \
 	include/qbf2asp/IQbf2AspRewriter.hpp \
 	\
-	include/qbf2asp/create.hpp
+	include/qbf2asp/create.hpp \
+	\
+	include/qbf2asp/DependencyScheme.hpp \
+	\
+	src/TrivialDependencyScheme.hpp \
+	\
+	src/StandardDependencyScheme.hpp \
+	\
+	include/qbf2asp/IDependencyOrder.hpp \
+	\
+	src/StandardDependencyOrder.hpp
+
 
 # list public header files that should be installed, but not distributed
 # useful for generated headers, which should not be distributed as source code
@@ -82,7 +93,18 @@ libqbf2asp_la_SOURCES = \
 	src/util/errorhandling.cpp \
 	src/util/errorhandling.hpp \
 	src/util/debug.cpp \
-	src/util/debug.hpp
+	src/util/debug.hpp \
+	\
+	src/TrivialDependencyScheme.cpp \
+	src/TrivialDependencyScheme.hpp \
+	\
+	src/StandardDependencyScheme.cpp \
+	src/StandardDependencyScheme.hpp \
+	\
+	src/DependencyScheme.cpp \
+	\
+	src/StandardDependencyOrder.hpp \
+	src/StandardDependencyOrder.cpp
 
 # list of public header files used when tree decomposition is enabled
 HEADERS_DECOMPOSITION = \
