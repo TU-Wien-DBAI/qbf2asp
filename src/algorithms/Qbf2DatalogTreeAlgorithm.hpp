@@ -7,6 +7,8 @@
 
 #include <qbf2asp/IQbf2AspTreeAlgorithm.hpp>
 
+#include <qbf2asp/IDependencyOrder.hpp>
+
 #include <logic/parsers>
 #include <sharp/main>
 #include <htd/main.hpp>
@@ -38,6 +40,8 @@ namespace qbf2asp
 				const sharp::IDecomposableInstance &instance) const override;
 
 		virtual bool needAllTables() const override;
+
+        virtual void setDependencyOrder(qbf2asp::IDependencyOrder & order);
 
 	protected:
 		sharp::ITable *evaluateNode(
@@ -84,6 +88,7 @@ namespace qbf2asp
 				const sharp::INodeTableMap &tables,
 				short &currentQuantifier,
 				std::unordered_set<logic::variable_t> &remaining,
+                std::unordered_set<logic::variable_t> &eliminated,
 				std::unordered_set<logic::variable_t> &forgotten,
 				htd::ConstIterator<htd::vertex_t> begin,
 				htd::ConstIterator<htd::vertex_t> end) const;
@@ -102,18 +107,6 @@ namespace qbf2asp
 				const std::list<logic::variable_t> &order,
 				logic::clause_t clause) const;
 
-		void printUniversalElimination(
-				htd::vertex_t node,
-				const std::unordered_set<logic::variable_t> &projectOut,
-				std::list<logic::variable_t> &order,
-				long &step) const;
-
-		void printExistentialElimination(
-				htd::vertex_t node,
-				const std::unordered_set<logic::variable_t> &projectOut,
-				std::list<logic::variable_t> &order,
-				long &step) const;
-
 		void printOutputRule(
 				htd::vertex_t node,
 				long step,
@@ -123,8 +116,33 @@ namespace qbf2asp
 
 		void printRootRules(htd::vertex_t node) const;
 
+        void intersectRemainingVariables(
+            const sharp::INodeTableMap &tables,
+            std::unordered_set<logic::variable_t> & remaining,
+            htd::ConstCollection<htd::vertex_t> children) const ;
+
+        void printSingleExistentialEliminationRule(
+            htd::vertex_t node,
+            logic::variable_t var,
+            std::list<logic::variable_t> &order,
+            long &step) const;
+
+        void printSingleUniversalEliminationRule(
+            htd::vertex_t node,
+            logic::variable_t var,
+            std::list<logic::variable_t> &order,
+            long &step) const;
+
+        void printEliminationRules(
+            const logic::IQbfInstance & instance,
+            htd::vertex_t node,
+            const std::unordered_set<logic::variable_t> &projectOut,
+            std::list<logic::variable_t> &order,
+            long &step) const;
+        
 	private:
 		mutable std::ostream *out_;
+        qbf2asp::IDependencyOrder * order_;
 
 	}; // class Qbf2DatalogTreeAlgorithm
 

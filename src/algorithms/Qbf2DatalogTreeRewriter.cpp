@@ -4,6 +4,9 @@
 #include <qbf2asp/create.hpp>
 #include <qbf2asp/DecomposableQbfInstance.hpp>
 
+#include <qbf2asp/IDependencyOrder.hpp>
+#include "../StandardDependencyOrder.hpp"
+
 namespace qbf2asp
 {
 	using logic::IQbfInstance;
@@ -21,7 +24,6 @@ namespace qbf2asp
 															.createInstance()),
 		treeAlgorithm_(create::treeAlgorithm()),
 		solver_(sharp::create::treeSolver(*tdAlgorithm_, *treeAlgorithm_))
-
 	{ }
 
 	Qbf2DatalogTreeRewriter::~Qbf2DatalogTreeRewriter() { }
@@ -57,6 +59,13 @@ namespace qbf2asp
 			const IDecomposableInstance &instance,
 			const ITreeDecomposition &decomposition) const
 	{
+        const IQbfInstance & formula =
+            static_cast<const DecomposableQbfInstance *>(&instance)->content();
+
+        StandardDependencyOrder order(formula);
+        
+        treeAlgorithm_->setDependencyOrder(order);
+        
 		return solver_->solve(instance, decomposition);
 	}
 

@@ -27,6 +27,7 @@ namespace qbf2asp
 		short currentQuantifier;
 		std::unordered_set<logic::variable_t> remaining;
 		std::unordered_set<logic::variable_t> forgotten;
+        std::unordered_set<logic::variable_t> eliminated;
 
 	}; // class Qbf2DatalogTable
 

@@ -8,6 +8,8 @@
 #include <sstream>
 #include <climits>
 
+#include <set>
+
 namespace qbf2asp
 {
 	using logic::IQbfInstance;
@@ -36,6 +38,8 @@ namespace qbf2asp
 	using std::string;
 	using std::to_string;
 	using std::endl;
+
+    using std::set;
 
 	Qbf2DatalogTreeAlgorithm::Qbf2DatalogTreeAlgorithm() : out_(&std::cout) { }
 
@@ -68,7 +72,7 @@ namespace qbf2asp
 	{
 		return false;
 	}
-
+    
 	ITable *Qbf2DatalogTreeAlgorithm::evaluateNode(
 			vertex_t node,
 			const ITreeDecomposition &decomposition,
@@ -111,9 +115,12 @@ namespace qbf2asp
 
 			unordered_set<variable_t> projectOut;
 			for(auto it = table->remaining.begin();
-					 it != table->remaining.end();)
+                it != table->remaining.end();) {
 				if(table->forgotten.find(*it) != table->forgotten.end())
 				{
+                    // Keep track of the eliminated variables.
+                    table->eliminated.insert(*it);
+                    
 					projectOut.insert(*it);
 					table->forgotten.erase(*it);
 					table->current.erase(*it);
@@ -123,26 +130,32 @@ namespace qbf2asp
 				{
 					++it;
 				}
+            }
 
 			DBG_COLL(projectOut); DBG(" = "); DBG(table->currentQuantifier);
 			DBG(endl);
 
-			if(projectOut.empty())
+			if(projectOut.empty()) {
 				break;
+            }
+            
+            printEliminationRules(instance, node, projectOut, order, step);
+            
+            // Check if there new minimal elements to be eliminated.
+            
+            set<variable_t> minimalVariables;
+            set<variable_t> eliminatedVariables(
+                table->eliminated.begin(), table->eliminated.end());
+            
+            order_->minimalVariables(eliminatedVariables, minimalVariables);
+            
 
-			// check if we currently have a quantification level that is
-			// universal in DNF (that is, *not* universal in CNF) 
-			if(instance.isUniversal(*projectOut.begin()) != instance.isCnf())
-				printUniversalElimination(node, projectOut, order, step);
-			else
-				printExistentialElimination(node, projectOut, order, step);
-
-			// check if we can do more (we cannot if we haven't eliminated all
-			// elements in the quantifier or if the leve is 0)
-			if(table->currentQuantifier > 0 && table->remaining.empty())
-				table->remaining = instance.variables(
-						--table->currentQuantifier);
-			else break;
+            if (!minimalVariables.empty()) {
+                table->remaining.insert(
+                    minimalVariables.begin(), minimalVariables.end());
+            } else {
+                break;
+            }
 		}
 
 		printOutputRule(node, step, table->current, table->forgotten, order);
@@ -174,12 +187,40 @@ namespace qbf2asp
 		table->current.insert(
 				decomposition.bagContent(node).begin(),
 				decomposition.bagContent(node).end());
+        
 		table->currentQuantifier = instance.innermostQuantifierLevel();
-		table->remaining = instance.variables(table->currentQuantifier);
+        
+		// table->remaining = instance.variables(table->currentQuantifier);
 
+        set<variable_t> minimalVariables;
+        
+        order_->minimalVariables(minimalVariables);
+
+        table->remaining.insert(
+            minimalVariables.begin(), minimalVariables.end());
+        
 		return table.release();
 	}
 
+    void Qbf2DatalogTreeAlgorithm::intersectRemainingVariables(
+        const INodeTableMap &tables,
+        unordered_set<variable_t> & remaining,
+        ConstCollection<vertex_t> children) const
+    {
+        for (auto child : children) {
+            const Qbf2DatalogTable &ctable = table(child, tables);
+            for(auto it = remaining.begin(); it != remaining.end();) {
+                if(ctable.remaining.find(*it) == ctable.remaining.end()) {
+                    it = remaining.erase(it);
+                }
+                else {
+                    ++it;
+                }
+            }
+
+        }
+    }
+    
 	Qbf2DatalogTable *Qbf2DatalogTreeAlgorithm::createNodeTable(
 			vertex_t node,
 			const ITreeDecomposition &decomposition,
@@ -193,11 +234,34 @@ namespace qbf2asp
 				decomposition.bagContent(node).end());
 		table->currentQuantifier = SHRT_MAX;
 
+        // (1) Get all the remaining nodes from the children
+        // (2) Get all the eliminated nodes from the children
+        // (3) Get all the forgotten nodes from the children
+        
 		ConstCollection<vertex_t> children = decomposition.children(node);
 
-		processChildTables(node, instance, table->current, tables,
-				table->currentQuantifier, table->remaining, table->forgotten,
-				children.begin(), children.end());
+		processChildTables(node, instance,
+                           table->current,
+                           tables,
+                           table->currentQuantifier,
+                           table->remaining,
+                           table->eliminated,
+                           table->forgotten,
+                           children.begin(),
+                           children.end());
+
+        // (4) Intersect the remaining sets with all remaining
+        
+        intersectRemainingVariables(tables, table->remaining, children);
+        
+        // (5) Find the new minimal nodes, add them to remaining
+
+        set<variable_t> minimalVariables;
+        set<variable_t> eliminatedVariables(
+            table->eliminated.begin(), table->eliminated.end());
+        
+        order_->minimalVariables(eliminatedVariables, minimalVariables);
+        table->remaining.insert(minimalVariables.begin(), minimalVariables.end());
 
 		return table.release();
 	}
@@ -252,33 +316,41 @@ namespace qbf2asp
 			const INodeTableMap &tables,
 			short &currentQuantifier,
 			std::unordered_set<logic::variable_t> &remaining,
+            std::unordered_set<logic::variable_t> &eliminated,
 			std::unordered_set<logic::variable_t> &forgotten,
 			htd::ConstIterator<htd::vertex_t> begin,
 			htd::ConstIterator<htd::vertex_t> end) const
 	{
 			const Qbf2DatalogTable &ctable = table(*begin, tables);
-			if(ctable.currentQuantifier < currentQuantifier)
-			{
-				currentQuantifier = ctable.currentQuantifier;
-				remaining = ctable.remaining;
-			}
-			else if(ctable.currentQuantifier == currentQuantifier)
-			{
-				for(auto it = remaining.begin(); it != remaining.end();)
-					if(ctable.remaining.find(*it) == ctable.remaining.end())
-						it = remaining.erase(it);
-					else
-						++it;
-			}
 
+            // Find all the remaining variables
+            remaining.insert(ctable.remaining.begin(), ctable.remaining.end());
+
+            // Remove variables that have been eliminated by a child
+            for(auto it = remaining.begin(); it != remaining.end();) {
+                if(ctable.remaining.find(*it) == ctable.remaining.end()) {
+                    it = remaining.erase(it);
+                }
+                else {
+                    ++it;
+                }
+            }
+            
 			forgotten.insert(ctable.forgotten.begin(), ctable.forgotten.end());
 
 			// recursively proceed though all children
 			vertex_t child = *begin++;
 			if(begin != end)
-				processChildTables(node, instance, current, tables,
-						currentQuantifier, remaining, forgotten,
-						begin, end);
+				processChildTables(node,
+                                   instance,
+                                   current,
+                                   tables,
+                                   currentQuantifier,
+                                   remaining,
+                                   eliminated,
+                                   forgotten,
+                                   begin,
+                                   end);
 
 			// now that we know all forgotten nodes, print out the rule
 			printMappingRule(node, current, forgotten, 
@@ -397,57 +469,31 @@ namespace qbf2asp
 	}
 
 
-	void Qbf2DatalogTreeAlgorithm::printUniversalElimination(
-			vertex_t node,
-			const unordered_set<variable_t> &projectOut,
-			list<variable_t> &order,
-			long &step) const
-	{
-		ostream &out = *out_;
+    void Qbf2DatalogTreeAlgorithm::printEliminationRules(
+        const IQbfInstance & instance,
+        vertex_t node,
+        const unordered_set<variable_t> &projectOut,
+        list<variable_t> &order,
+        long &step) const
+    {
+        for (variable_t variable : projectOut) {
+            if (instance.isUniversal(variable) != instance.isCnf()) {
+                printSingleUniversalEliminationRule(
+                    node, variable, order, step);
+            } else {
+                printSingleExistentialEliminationRule(
+                    node, variable, order, step);
+            }
+        }
+    }
 
-		for(variable_t var : projectOut)
-		{
-			ostringstream ss1, ss2;
-			string postfix = step ? to_string(step) : "in";
-
-			out << "p_" << node << "_" << ++step << "("; 
-			ss1 << "p_" << node << "_" << postfix << "("; 
-			ss2 << "p_" << node << "_" << postfix << "("; 
-
-			string hsep = "", bsep = "";
-
-			for(auto it = order.begin(); it != order.end();)
-			{
-				ss1 << bsep << "V" << *it;
-				ss2 << bsep << "V" << *it;
-				bsep = ", ";
-
-				if(var == *it)
-				{
-					it = order.erase(it);
-					ss1 << "A";
-					ss2 << "B";
-				}
-				else
-				{
-					out << hsep << "V" << *it;
-					hsep = ", ";
-					++it;
-				}
-			}
-
-			out << ") :- " << ss1.str() << "), " << ss2.str() << "), "
-				<< "t(V" << var << "A), f(V" << var << "B)." << endl;
-		}
-	}
-
-	void Qbf2DatalogTreeAlgorithm::printExistentialElimination(
-			vertex_t node,
-			const unordered_set<variable_t> &projectOut,
-			list<variable_t> &order,
-			long &step) const
-	{
-		ostream &out = *out_;
+    void Qbf2DatalogTreeAlgorithm::printSingleExistentialEliminationRule(
+        vertex_t node,
+        variable_t var,
+        list<variable_t> &order,
+        long &step) const
+    {      
+        ostream &out = *out_;
 		ostringstream ss;
 
 		string postfix = step ? to_string(step) : "in";
@@ -462,7 +508,7 @@ namespace qbf2asp
 			ss << bsep << "V" << *it;
 			bsep = ", ";
 
-			if(projectOut.find(*it) != projectOut.end())
+			if(var == *it)
 			{
 				it = order.erase(it);
 			}
@@ -475,7 +521,49 @@ namespace qbf2asp
 		}
 
 		out << ") :- " << ss.str() << ")." << endl;
-	}
+    }
+    
+    void Qbf2DatalogTreeAlgorithm::printSingleUniversalEliminationRule(
+        vertex_t node,
+        variable_t var,
+        list<variable_t> &order,
+        long &step) const
+    {
+        ostream &out = *out_;
+
+        ostringstream ss1, ss2;
+        string postfix = step ? to_string(step) : "in";
+
+        out << "p_" << node << "_" << ++step << "("; 
+        ss1 << "p_" << node << "_" << postfix << "("; 
+        ss2 << "p_" << node << "_" << postfix << "("; 
+
+        string hsep = "", bsep = "";
+
+        for(auto it = order.begin(); it != order.end();)
+        {
+            ss1 << bsep << "V" << *it;
+            ss2 << bsep << "V" << *it;
+            bsep = ", ";
+
+            if(var == *it)
+            {
+                it = order.erase(it);
+                ss1 << "A";
+                ss2 << "B";
+            }
+            else
+            {
+                out << hsep << "V" << *it;
+                hsep = ", ";
+                ++it;
+            }
+        }
+
+        out << ") :- " << ss1.str() << "), " << ss2.str() << "), "
+            << "t(V" << var << "A), f(V" << var << "B)." << endl;
+
+    }
 
 	void Qbf2DatalogTreeAlgorithm::printOutputRule(
 			vertex_t node,
@@ -519,6 +607,12 @@ namespace qbf2asp
 		out << ":- p_" << node << "_out()." << endl;
 		out << "t(1). f(0). tf(1). tf(0)." << endl;
 	}
+
+    void Qbf2DatalogTreeAlgorithm::setDependencyOrder(
+        qbf2asp::IDependencyOrder & order)
+    {
+        order_ = &order;
+    }
 
 
 } // namespace qbf2asp
