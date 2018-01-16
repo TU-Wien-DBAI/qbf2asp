@@ -204,7 +204,14 @@ namespace qbf2asp
 	for (int currentQuantifierLevel = 0;
 	     currentQuantifierLevel <= instance.innermostQuantifierLevel();
 	     currentQuantifierLevel++) {
-	    cout << (currentQuantifierLevel % 2 == 0 ? "e" : "a") << " ";
+        bool primalQuantifier =
+            (currentQuantifierLevel + instance.innermostQuantifierLevel()) % 2 == 0;
+        if (primalQuantifier) {
+            cout << (instance.isCnf() ? "e" : "a");
+        } else {
+            cout << (instance.isCnf() ? "a" : "e");
+        }
+        cout << " ";
 	    for (const IQbfClause & clause : instance) {
 		for (variable_t variable : clause) {
 		    if (instance.quantifierLevel(variable) == currentQuantifierLevel) {
