@@ -317,18 +317,20 @@ int main(int argc, char *argv[])
 	std::cerr << "Parsing..." << std::endl;
 	std::unique_ptr<logic::IQDIMACSParser> parser(
 			logic::parser::qdimacsParser());
-        
+
+        const logic::IQbfInstance * parsedInstance = parser->parse(inputStream);
+	if(parsedInstance == nullptr) {
+            exit(EXIT_PARSING_ERROR);
+        }
+
 	std::unique_ptr<const logic::IQbfInstance> instance(
             opts.normalize
-            ? qbf2asp::NaiveQcnfNormalizer(opts.maxClauseSize + 1).normalize(*(parser->parse(inputStream)))
-            : parser->parse(inputStream)
+            ? qbf2asp::NaiveQcnfNormalizer(opts.maxClauseSize).normalize(*parsedInstance)
+            : parsedInstance
 	    );
-        
+
 	parser.reset();
 	logic::Benchmark::registerTimestamp("parsing time");
-
-	if(!instance.get())
-		exit(EXIT_PARSING_ERROR);
 
 	std::cerr << "Initializing rewriter..." << std::endl;
 	std::unique_ptr<qbf2asp::IQbf2AspRewriter> rewriter(
