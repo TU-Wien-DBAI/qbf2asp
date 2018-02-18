@@ -45,9 +45,9 @@ namespace
 			int opt;
 			long alg;
 #ifdef ENABLE_DECOMPOSITION
-			while((opt = getopt(argc, argv, "vhbds:a:t:")) != -1)
+			while((opt = getopt(argc, argv, "vhbds:a:t:n:")) != -1)
 #else // !defined(ENABLE_DECOMPOSITION)
-			while((opt = getopt(argc, argv, "vhbs:a:")) != -1)
+			while((opt = getopt(argc, argv, "vhbs:a:n:")) != -1)
 #endif // ENABLE_DECOMPOSITION
 				switch(opt)
 				{
@@ -94,6 +94,13 @@ namespace
 					else
 						this->error = true;
 					break;
+                                case 'n':
+                                    this->normalize = true;
+                                    this->maxClauseSize = strtoul(optarg, NULL, 10);
+                                    if (this->maxClauseSize < 3) {
+                                        this->error = true;
+                                    }
+                                    break;
 
 				default:
 					this->error = true;
@@ -122,6 +129,8 @@ namespace
 		char *fileToRead = nullptr;
 		bool customRewriter = false; // -c <config>, --config=<config>
 		qbf2asp::create::Rewriter rewriter = qbf2asp::create::SATURATION;
+            bool normalize = false;
+            unsigned int maxClauseSize = 0;
 	};
 
 	void
@@ -148,6 +157,8 @@ namespace
 #endif // ENABLE_DECOMPOSITION
 			<< "  -b\t  display timing information (use twice for CSV format)"
 				<< std::endl
+                        << "  -n NUM  normalize clause to a given length (>= 3)"
+                                << std::endl
 			<< "  -s NUM  set NUM as seed for the random number generator"
 				<< std::endl
 			<< "  -a NUM  set rewriter to NUM:" << std::endl
@@ -306,8 +317,13 @@ int main(int argc, char *argv[])
 	std::cerr << "Parsing..." << std::endl;
 	std::unique_ptr<logic::IQDIMACSParser> parser(
 			logic::parser::qdimacsParser());
+        
 	std::unique_ptr<const logic::IQbfInstance> instance(
-	    qbf2asp::NaiveQcnfNormalizer(4).normalize(*(parser->parse(inputStream))));
+            opts.normalize
+            ? qbf2asp::NaiveQcnfNormalizer(opts.maxClauseSize + 1).normalize(*(parser->parse(inputStream)))
+            : parser->parse(inputStream)
+	    );
+        
 	parser.reset();
 	logic::Benchmark::registerTimestamp("parsing time");
 
