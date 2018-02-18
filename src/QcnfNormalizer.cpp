@@ -1,6 +1,7 @@
 #include "./preamble.h"
 
 #include "QcnfNormalizer.hpp"
+#include <logic/ProceduralQbfInstanceBuilder.hpp>
 
 #include <logic/parsers>
 
@@ -14,6 +15,8 @@ namespace qbf2asp
     using logic::IQbfInstance;
     using logic::IQbfClause;
     using logic::IQbfInstanceBuilder;
+    using logic::ProceduralQbfInstanceBuilder;
+    using logic::ProceduralQbfClauseBuilder;
 
     using std::cout;
     using std::endl;
@@ -159,10 +162,12 @@ namespace qbf2asp
     }
 
     
-    void copyLiteralListToClause(list<QbfLiteral> * literals, IQbfClause & clause)
+    void copyLiteralListToClause(
+        list<QbfLiteral> * literals,
+        ProceduralQbfClauseBuilder & clauseBuilder)
     {
 	for (auto literal : *literals) {
-	    clause.addVariable(literal.variable(), literal.polarity());
+	    clauseBuilder.addLiteral(literal.variable(), literal.polarity());
 	}
     }
 
@@ -171,7 +176,7 @@ namespace qbf2asp
 	const set<variable_t> * splitVariables,
 	const IQbfInstance & instance)
     {
-	IQbfInstanceBuilder * instanceBuilder = logic::parser::qbfInstanceBuilder();
+	ProceduralQbfInstanceBuilder * instanceBuilder = logic::parser::qbfInstanceBuilder();
 
     if (instance.isCnf()) {
         instanceBuilder->setCnf();
@@ -179,7 +184,7 @@ namespace qbf2asp
         instanceBuilder->setDnf();
     }
     
-	instanceBuilder->setVariableCount(instance.variableCount() + splitVariables->size());
+//	instanceBuilder->setVariableCount(instance.variableCount() + splitVariables->size());
 
 	for (auto literalList : *newClauses) {
 	    copyLiteralListToClause(literalList, instanceBuilder->addClause());
