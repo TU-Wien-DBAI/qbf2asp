@@ -45,7 +45,7 @@ namespace
 			int opt;
 			long alg;
 #ifdef ENABLE_DECOMPOSITION
-			while((opt = getopt(argc, argv, "vhbds:a:t:n:")) != -1)
+			while((opt = getopt(argc, argv, "vhbds:a:t:n:c:")) != -1)
 #else // !defined(ENABLE_DECOMPOSITION)
 			while((opt = getopt(argc, argv, "vhbs:a:n:")) != -1)
 #endif // ENABLE_DECOMPOSITION
@@ -73,6 +73,12 @@ namespace
 					else
 						this->error = true;
 					break;
+                                case 'c':
+                                    this->dependencyScheme = strtol(optarg, NULL, 10);
+                                    if (this->dependencyScheme != 1 && this->dependencyScheme !=2) {
+                                        this->error = true;
+                                    }
+                                    break;
 #endif // ENABLE_DECOMPOSITION
 
 				case 'b':
@@ -131,6 +137,7 @@ namespace
 		qbf2asp::create::Rewriter rewriter = qbf2asp::create::SATURATION;
             bool normalize = false;
             unsigned int maxClauseSize = 0;
+            int dependencyScheme = 1;
 	};
 
 	void
@@ -154,6 +161,10 @@ namespace
 				<< std::endl
 			<< "\t    mf:  minimum fill edge count bucket elimination (default)"
 				<< std::endl
+                        << "  -c NUM  set the dependency scheme for the Datalog rewriting." << std::endl
+                        << "          Possible values are:" << std::endl
+                        << "            1: selects the trivial dependency scheme;" << std::endl 
+                        << "            2: selects the standard depdendency scheme" << std::endl
 #endif // ENABLE_DECOMPOSITION
 			<< "  -b\t  display timing information (use twice for CSV format)"
 				<< std::endl
