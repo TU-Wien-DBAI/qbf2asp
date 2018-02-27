@@ -65,7 +65,7 @@ libqbf2asp_la_include_HEADERS = \
 	\
 	include/qbf2asp/IDependencyOrder.hpp \
 	\
-	src/StandardDependencyOrder.hpp
+	src/DependencyOrder.hpp
 
 
 # list public header files that should be installed, but not distributed
@@ -103,8 +103,8 @@ libqbf2asp_la_SOURCES = \
 	\
 	src/DependencyScheme.cpp \
 	\
-	src/StandardDependencyOrder.hpp \
-	src/StandardDependencyOrder.cpp
+	src/DependencyOrder.hpp \
+	src/DependencyOrder.cpp
 
 # list of public header files used when tree decomposition is enabled
 HEADERS_DECOMPOSITION = \

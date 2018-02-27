@@ -4,15 +4,15 @@
 #include <qbf2asp/global>
 #include <logic/parsers>
 
-#include <unordered_set>
+#include <set>
 
 namespace qbf2asp
 {
     class QBF2ASP_API IDependencyScheme
     {
     public:
-        virtual const std::unordered_set<logic::variable_t> &
-            rightVariables(logic::variable_t variable) const = 0;
+        virtual const std::set<logic::variable_t> &
+            dependingVariables(logic::variable_t variable) const = 0;
         
         virtual void removeVariable(logic::variable_t variable) = 0;
     };
