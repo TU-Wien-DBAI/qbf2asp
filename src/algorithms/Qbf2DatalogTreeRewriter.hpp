@@ -15,7 +15,7 @@
 namespace qbf2asp
 {
 
-	class QBF2ASP_LOCAL Qbf2DatalogTreeRewriter : public IQbf2AspTreeRewriter
+	class QBF2ASP_API Qbf2DatalogTreeRewriter : public IQbf2AspTreeRewriter
 	{
 	protected:
 		Qbf2DatalogTreeRewriter &operator=(Qbf2DatalogTreeRewriter &)
@@ -41,11 +41,14 @@ namespace qbf2asp
 		virtual sharp::ISolution *solve(
 				const sharp::IDecomposableInstance &instance,
 				const htd::ITreeDecomposition &decomposition) const override;
+                
+                virtual void setDependencyScheme(int scheme);
 
 	private:
 		std::unique_ptr<htd::ITreeDecompositionAlgorithm> tdAlgorithm_;
 		std::unique_ptr<IQbf2AspTreeAlgorithm> treeAlgorithm_;
 		std::unique_ptr<sharp::ITreeSolver> solver_;
+                int m_scheme = 1;
 
 	}; // class Qbf2DatalogTreeRewriter
 

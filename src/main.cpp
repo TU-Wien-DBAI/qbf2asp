@@ -18,6 +18,7 @@
 // include new classes: VariableGenerator and QcnfNormalizer etc.
 // once this is done these definitions should be in some common header.
 #include "QcnfNormalizer.hpp"
+#include "algorithms/Qbf2DatalogTreeRewriter.hpp"
 
 
 #ifdef HAVE_UNISTD_H 
@@ -351,9 +352,11 @@ int main(int argc, char *argv[])
 	// check to see if we have a tree decomposition rewriter
 	if(opts.rewriter == qbf2asp::create::DATALOG_VIA_DECOMPOSITION)
 	{
-		qbf2asp::IQbf2AspTreeRewriter &treeRewriter(
-				static_cast<qbf2asp::IQbf2AspTreeRewriter &>(*rewriter.get()));
+		qbf2asp::Qbf2DatalogTreeRewriter &treeRewriter(
+				static_cast<qbf2asp::Qbf2DatalogTreeRewriter &>(*rewriter.get()));
 
+                treeRewriter.setDependencyScheme(opts.dependencyScheme);
+                
 		std::cerr << "Decomposing..." << std::endl;
 
 		qbf2asp::DecomposableQbfInstance decomposableInstance(*instance);
